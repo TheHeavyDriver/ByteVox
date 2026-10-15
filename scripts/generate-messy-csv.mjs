@@ -36,11 +36,8 @@ const LAST = ["Agarwal", "Baker", "Chen", "Dubois", "Evans", "Fischer", "Gupta",
 const REGIONS = ["North", "South", "East", "West", "northeast"];
 const PRODUCTS = ["Widget", "Gadget", "Sprocket", "Gizmo", "Doohickey", "Thingama", "Contraption", "Bracket", "Flange", "Bolt", "Nut", "Washer"];
 const STATUSES = ["shipped", "delivered", "pending", "cancelled", "returned", " shipped ", "Unknown"];
-const NOTE_SNIPPETS = [
-  "all good", "partial delivery", "customer called", "urgent", "refund requested",
-  "address corrected", "gift wrap", "split shipment", "fragile", "repeat order",
-  "N/A", "unknown", "-",
-];
+const NOTE_ACTIONS = ["confirm", "call", "email", "recheck", "expedite", "note", "hold", "release", "escalate", "retry", "reschedule", "split"];
+const NOTE_OBJECTS = ["the delivery slot", "the warehouse", "the customer", "the payment", "the invoice", "the courier", "the gift wrap", "the address", "the discount", "the return pick-up"];
 
 function fmtIso(d) {
   return d.toISOString().slice(0, 10);
@@ -94,7 +91,7 @@ for (let i = 0; i < TOTAL_ROWS; i += 1) {
 
   if (raggedExtra.has(i)) {
     // Extra trailing field: 15 fields where 14 are expected.
-    lines.push(`${orderId},2024-03-15,${pick(FIRST)} ${pick(LAST)},North,Widget,3,$10.00,5%,$28.50,shipped,,note,North,EXTRA`);
+    lines.push(`${orderId},2024-03-15,${pick(FIRST)} ${pick(LAST)},North,Widget,3,$10.00,5%,$28.50,shipped,,note,North,,EXTRA`);
     continue;
   }
   if (raggedMissing.has(i)) {
@@ -144,12 +141,12 @@ for (let i = 0; i < TOTAL_ROWS; i += 1) {
   let notes;
   const noteRoll = rnd();
   if (noteRoll < 0.06) notes = "";
-  else if (noteRoll < 0.09) notes = pick(NOTE_SNIPPETS);
+  else if (noteRoll < 0.09) notes = pick(["all good", "partial delivery", "urgent", "refund requested", "N/A", "unknown", "-"]);
   else if (noteRoll < 0.095) notes = "This is a very long note that keeps going well past two hundred characters to test how the table and profile views cope with oversized text values without breaking the layout or truncating information silently. It ends here.";
   else if (noteRoll < 0.096) notes = "Line one\nLine two in the same cell";
   else if (noteRoll < 0.097) notes = "<script>alert('xss')</script>";
   else if (noteRoll < 0.0975) notes = 'Customer said: "wrap it twice", then left.';
-  else notes = pick(["all good", "shipped today", "call before delivery", "priority"]);
+  else notes = `${pick(NOTE_ACTIONS)} ${pick(NOTE_OBJECTS)} #${int(1000, 9999)}`;
   if (chance(0.02)) notes = `  ${notes}`;
 
   const regionDup = chance(0.2) ? pick(["north", "south", "east", "west"]) : "";
