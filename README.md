@@ -14,7 +14,7 @@ npm run dev     # http://localhost:3000
 
 Sign up with any email and an 8+ character password, then upload `sample-data/messy_orders.csv` (an intentionally messy ~2.5k-row file) to reproduce the whole demo. `npm test` — 67 tests across 7 files — prepares its own throwaway database on first run; `npm run typecheck` and `npm run build` are clean.
 
-Requirements: Node 20+ (built on Node 26) and npm. No Docker, no external services — SQLite lives under `var/`, and raw uploads are stored outside any served directory. `npm run demo:data` regenerates the sample CSV.
+Requirements: Node 22.12+ (built on Node 26) and npm. No Docker, no external services — SQLite lives under `var/`, and raw uploads are stored outside any served directory. `npm run demo:data` regenerates the sample CSV.
 
 ## How my report builder works
 
