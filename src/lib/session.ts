@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import {
   SESSION_COOKIE_NAME,
@@ -31,7 +32,7 @@ export async function endCurrentSession(): Promise<void> {
   jar.delete(SESSION_COOKIE_NAME);
 }
 
-export async function getCurrentUser(): Promise<User | null> {
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const jar = await cookies();
   return getUserBySessionToken(jar.get(SESSION_COOKIE_NAME)?.value);
-}
+});
