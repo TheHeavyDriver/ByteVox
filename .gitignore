@@ -9,6 +9,9 @@ next-env.d.ts
 coverage/
 src/generated/
 
+# Playwright CLI scratch output (snapshots, screenshots, console logs).
+.playwright-cli/
+
 # Prisma init wrote these editor/AI helper folders; not part of the app.
 .agents/
 .claude/

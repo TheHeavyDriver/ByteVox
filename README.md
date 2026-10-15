@@ -12,7 +12,7 @@ npm run setup   # prisma generate + migrate deploy → creates var/dev.db
 npm run dev     # http://localhost:3000
 ```
 
-Sign up with any email and an 8+ character password, then upload `sample-data/messy_orders.csv` (an intentionally messy ~2.5k-row file) to reproduce the whole demo. `npm test` runs 67 tests across 7 files; `npm run typecheck` and `npm run build` are clean.
+Sign up with any email and an 8+ character password, then upload `sample-data/messy_orders.csv` (an intentionally messy ~2.5k-row file) to reproduce the whole demo. `npm test` — 67 tests across 7 files — prepares its own throwaway database on first run; `npm run typecheck` and `npm run build` are clean.
 
 Requirements: Node 20+ (built on Node 26) and npm. No Docker, no external services — SQLite lives under `var/`, and raw uploads are stored outside any served directory. `npm run demo:data` regenerates the sample CSV.
 
@@ -58,6 +58,8 @@ Each metric, chart, and table block carries a "How this is computed" panel conta
 3. a handful of actual source rows (row number, raw value, value as counted);
 4. honest notes for anything omitted, e.g. a bar chart shows the top groups and states "N smaller groups not shown" instead of quietly truncating.
 
+![The trace panel behind a row count of 673 — formula, both ledgers, and sample source rows](docs/screenshots/trace.png)
+
 Tests assert those accounting identities on every evaluation path, and empty results show a written explanation ("no rows qualified…") rather than an empty chart or a `NaN`.
 
 ### Type guessing is explained, not just applied
@@ -65,6 +67,8 @@ Tests assert those accounting identities on every evaluation path, and empty res
 Per column: ≥90% parse as numbers → `number` (thousands separators, a leading currency symbol, trailing `%` tolerated); else ≥90% parse as dates against an explicit format list → `date` (with majority-dialect handling and ambiguity flags); else ≤50 distinct values covering <50% of rows → `category`; everything else → `text`. The profile states each test's actual counts, so a wrong guess is visible and debuggable, and every threshold is a named constant in one file.
 
 One sharp edge, stated instead of hidden: `equals`/`contains` filters match case-insensitively (so "north" finds "North"), but distinct counts and chart grouping use raw trimmed values, so "North" and "north" would appear as two groups. Both behaviors are pinned by tests.
+
+![Column guesses with their reasons: identifier rule, mixed date dialects, currency and percent parsing](docs/screenshots/columns.png)
 
 ### Sharing is safe by construction
 
@@ -81,6 +85,8 @@ Every mutation — title, description, filters, any block edit — runs through 
 > **What changed since this link was shared (v3 → v5)**
 > - Filter added: total_amount is between 100 and 5000
 > - Note block added: Reading this report — Note: Numbers cover Jan–Dec 2024 orders only…
+
+![The public viewer: read-only, traces included, with the what-changed panel on top](docs/screenshots/viewer.png)
 
 The owner sees the same diff as a live preview on the share page. Because the version bump and the snapshot are written together, the diff can never miss or invent a version.
 
