@@ -17,7 +17,7 @@ function resolveDatabaseUrl(): string {
   }
   const absolute = path.isAbsolute(filePath)
     ? filePath
-    : path.resolve(process.cwd(), filePath);
+    : path.resolve(/* turbopackIgnore: true */ process.cwd(), filePath);
   return `file:${absolute}`;
 }
 

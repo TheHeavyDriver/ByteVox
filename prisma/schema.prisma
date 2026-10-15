@@ -49,6 +49,7 @@ model Dataset {
   encoding         String
   rowCount         Int
   rejectedCount    Int
+  profileJson      String   @default("{}")
   status           String   @default("ready")
   createdAt        DateTime @default(now())
 
