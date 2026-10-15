@@ -226,6 +226,9 @@ export async function removeFilterAction(formData: FormData): Promise<void> {
 
 export type BlockFormState = { error: string | null };
 
+/** One report can hold this many blocks; the add action reports the cap. */
+const MAX_BLOCKS = 30;
+
 function buildDefinitionFromForm(
   formData: FormData,
 ):
@@ -322,7 +325,13 @@ export async function addBlockAction(
   const built = buildDefinitionFromForm(formData);
   if (!built.ok) return { error: built.error };
 
+  let failure: string | null = null;
   const changed = await mutateReport(reportId, user.id, async (tx, report) => {
+    const count = await tx.block.count({ where: { reportId: report.id } });
+    if (count >= MAX_BLOCKS) {
+      failure = `A report can hold at most ${MAX_BLOCKS} blocks.`;
+      return;
+    }
     const highest = await tx.block.aggregate({
       where: { reportId: report.id },
       _max: { position: true },
@@ -338,6 +347,7 @@ export async function addBlockAction(
     });
   });
   if (!changed) return { error: "Report not found." };
+  if (failure) return { error: failure };
   revalidateReport(reportId);
   return { error: null };
 }

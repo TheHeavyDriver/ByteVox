@@ -167,17 +167,18 @@ For each column, over all non-missing values:
 - One pure function computes every block: given (rows, report filter, block spec) it returns results plus a trace: `{ description, specRun, accounting }`.
 - **Accounting buckets:** `fileRows → rejectedAtImport + usableRows`, then `usableRows → excludedByFilter + excludedByMissingValue + includedRows`. Groups (for split metrics and chart series) carry their own counts. Rows with a missing group key form a visible "—" group.
 - **Trace panel content:** (1) plain-English sentence, (2) the exact operation that ran (aggregation, column, filter, grouping, ordering, limit), (3) the row accounting above.
-- **Charts:** bar = category on x, aggregated number on y; line = date on x bucketed by day, aggregated number on y. Chart data is computed server-side; the client only draws pixels.
-- **Tables:** top N rows (default 10, options 10/25/50) ordered by a chosen column; blanks sort last and the trace says so.
-- **Count semantics:** `count` counts included rows. Missing-value exclusion applies to sum/avg/min/max; the trace always names the column considered.
+- **Filters:** a report carries up to 10 conditions, ANDed, applied to every block: contains, equals, is blank, is not blank, number between, date between. Text matching for equals/contains is case-insensitive on trimmed values; distinct counts and chart grouping use the raw (trimmed) values — the difference is stated in the README rather than hidden.
+- **Charts:** bar = top groups by aggregated value (top N shown, the remainder reported in the trace, never silently dropped); line = a series over the group values with every bucket kept. Date groupings bucket by day. Chart data is computed server-side; the client only draws pixels.
+- **Tables:** the first N matching rows (default 10, up to 100) showing chosen columns, in source row order — the trace names the order and how many rows the limit omitted.
+- **Metrics:** count, distinct count, sum, mean, median, min, max. Count counts included rows; value metrics exclude blank and unparseable cells, and the trace splits both buckets by name.
 - No client-side arithmetic for any displayed number.
 
 ### Sharing and security
 
 - Share token: 32 random bytes (base64url). Only the SHA-256 hash is stored, so a database leak does not leak working links.
-- Expiry is required at creation (default 7 days, max 90) and enforced on every request; revocation is a timestamp that takes effect on the next request (share pages are `no-store`).
-- The share path resolves "report by token", never "report by id": the viewer's data is loaded through a function whose only input is the token. Expired, revoked, wrong, and partial tokens all produce the same not-found page.
-- The share view exposes only: report title, block titles/content, computed values, trace panels, and revision summaries created after the link's creation date. No dataset filename, no profile, no rejected rows, no owner identity, no link controls.
+- Expiry is required at creation (default 7 days, max 90) and enforced on every request; revocation is a timestamp that takes effect on the next request (share pages are `force-dynamic`, never cached).
+- The share path resolves "report by token", never "report by id": the viewer's data is loaded through a function whose only input is the token. Unknown, expired, and revoked tokens get friendly, distinctly worded pages — none expose any report content, and none reveal whether any report exists.
+- The share view exposes only: report title and description, the dataset's display name, block titles/content, computed values, trace panels (including a handful of sample source rows by design), and the "what changed" diff against the link's share version. No dataset id, filename, or path, no profile, no rejected rows, no owner identity, no link controls.
 - **No raw-file endpoint exists at all.** Uploaded bytes live outside any statically served directory and are never returned over HTTP; only parsed rows are read.
 - All mutations validate input server-side (zod) before touching the database; no SQL strings are ever built from user input (Prisma only).
 - CSV text is rendered as plain text everywhere; nothing from a file is interpreted as markup.
@@ -191,8 +192,9 @@ For each column, over all non-missing values:
 
 ### Report editing and revisions
 
-- Explicit Save. On save, the revisions module diffs previous → next and appends a numbered revision with a human-readable summary list.
-- The owner sees the history in the builder; viewers see revisions newer than their link's creation date in a "What changed" panel, with a "new since your last visit" badge driven by a per-link cookie.
+- Saved immediately, versioned always. Every mutation (title/description, filter add/remove, block add/edit/move/delete) runs through one transactional helper that checks ownership, applies the change, bumps `Report.version`, and stores a snapshot revision in the same transaction — no version can exist without its snapshot.
+- A revision stores a small human-readable snapshot (title, description, filter descriptions, block labels), not a diff; diffs are computed between the snapshot at a share link's version (`ShareLink.versionAtShare`) and the live report, so they are exact and the wording cannot drift.
+- The owner sees a live diff preview on the report's share page for the newest active link; viewers see the same diff as a "What changed since this link was shared" panel.
 
 ### UX and accessibility
 
@@ -212,7 +214,7 @@ For each column, over all non-missing values:
 1. **Compute engine (highest priority):** sum/avg/min/max/count, split-by-category, date-range and category filters, missing-value exclusion, empty result sets, all-missing columns (returns no value with a reason, not a crash), and the accounting invariant `included + excludedByFilter + excludedByMissingValue = usableRows` and `usableRows + rejectedAtImport = fileRows`.
 2. **CSV importer — bad-file matrix:** not-a-CSV (prose/binary), `.xlsx` magic bytes, invalid UTF-8, empty file, header-only file, ragged rows (recorded as rejected with reasons, remaining rows kept), unclosed quote, no total loss: `imported + rejected + blankLines = physical lines` for every fixture.
 3. **Type inference:** clean numbers/dates/categories, mixed columns around the 90% threshold, ambiguous `DD/MM vs MM/DD` flagging, identifier-like all-unique column classified as text.
-4. **Access control (the enforcement point):** a second user cannot fetch another user's report or dataset through the access layer; expired link resolves to not-found; revoked link resolves to not-found; random token resolves to not-found; a valid link exposes exactly the shared report and nothing adjacent. Expiry tests inject a fixed `now`, so they never flake.
+4. **Access control (the enforcement point):** a second user cannot fetch, mutate, delete, or share another user's report or dataset through the access layer; expired/revoked/random tokens resolve to their distinct no-content states; a valid link exposes exactly the shared report and nothing adjacent. Resolvers take an injectable `now`, so expiry tests never flake.
 5. **Revisions:** adding/removing/reordering blocks and changing the filter each produce the expected summary entries.
 
 **Explicitly not tested:** React rendering, Tailwind styling, and (unless time allows) a full HTTP-level end-to-end pass. Route handlers are intentionally thin wrappers over the tested domain modules; an HTTP smoke test is a stretch goal, not a substitute for the above.
@@ -273,3 +275,17 @@ The assignment says a likely live ask is adding a **median metric** or a new **f
 - No claimed feature that does not work end to end in the demo.
 - Numbers in the README (row counts, timings) must come from the actual sample data.
 - The "AI was wrong here" anecdote must be a real logged incident; keep a running note during the build.
+
+## 9. As-built deviations (v1)
+
+Where the built app deliberately differs from the plan above, recorded rather than glossed over:
+
+1. **No explicit Save button.** Every mutation saves and versions immediately; no unsaved state exists, so the diff preview on the share page always reflects exactly what is stored.
+2. **Generic filter list instead of one date-range + one category filter.** Up to 10 conditions, ANDed, six operators. A practical superset; multi-select "value in list" and negation are not built.
+3. **Metric split-by-category not built.** Grouping lives in chart blocks (top groups + a visible "(blank)" bucket), each with a full trace.
+4. **Tables show the first N rows in source order** (chosen columns, 1–100). Block-level column sorting was cut; the trace states the order and the omitted-row count.
+5. **No "new since your last visit" badge** (cut by plan, cut #2). The what-changed panel itself is built.
+6. **Distinct friendly pages for expired vs revoked vs unknown tokens** instead of one identical not-found page. None of the pages exposes report content or confirms what a wrong token would have been.
+7. **The viewer sees the dataset's display name** for traceability; no id, filename, or path, and the raw file remains unreachable.
+8. **Extra scope shipped beyond the plan:** median and distinct-count metrics (plus min/max naming the column); number-between and date-between operators; bar charts group by any column, with dates bucketing by day.
+9. **Rejected-rows list is capped** at the first 50 with exact reasons plus the total count, rather than paginated; blank-line and ignored-column counts are surfaced in the profile.

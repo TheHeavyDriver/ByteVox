@@ -21,7 +21,7 @@
 | File storage | Local disk (`var/uploads/`), never served | Raw bytes are never reachable over HTTP at all. |
 | Package manager | npm | Most universal; no extra tooling for reviewers. |
 
-Version policy: pin to the latest stable versions at build time (Next.js 15+, React 19, Tailwind v4, Prisma 6+, Vitest 3+, Node 20+ LTS). The lockfile is committed.
+Version policy: pinned at build time — Next.js 16.4, React 19, TypeScript 5.9, Tailwind 4.3, Prisma ORM 7.10 (with the better-sqlite3 driver adapter), Vitest 5, csv-parse 7, zod 4, date-fns 4, recharts 3, Node 26. The lockfile is committed. Where npm's `latest` points at an unreleased major (Prisma 8 rc), the stable 7.x line is pinned deliberately.
 
 ## 2. Choices and Rejected Alternatives
 
@@ -49,7 +49,7 @@ Server components read the database directly; route handlers and server actions 
 
 ### 2.4 CSV pipeline
 
-- **`csv-parse` (node-csv)** with `bom: true`, `trim: true`, `skip_empty_lines: true`, multi-delimiter detection (`,` `;` `\t` `|`), strict quoting, and `skip_records_with_error` so a bad row yields a record with its line number and message instead of killing the file.
+- **`csv-parse` (node-csv)** with `bom: true`, `trim: true`, `skip_empty_lines: false` (blank lines are counted, then classified), `relax_column_count: false` (ragged rows become rejects with line numbers), a delimiter list (`,` `;` `\t` `|`), strict quoting, and `skip_records_with_error` so a bad row yields a record with its line number and message instead of killing the file.
 - **Rejected: PapaParse.** Browser-first; its Node error reporting is weaker.
 - **Rejected: hand-rolled parser.** Quoting/escaping edge cases are exactly where "nothing silently dropped" dies.
 - **Encoding:** detect and decode UTF-8 (BOM-aware) and UTF-16LE/BE (BOM required) with the platform `TextDecoder`; reject anything else with an actionable message. Sniff `.xlsx` magic bytes (`PK\x03\x04`) for a targeted error.
@@ -80,8 +80,8 @@ Next.js server (App Router, Node runtime) — the only place logic runs
    ├─ access layer        every function takes userId or share token; no unscoped reads
    ├─ auth module         scrypt hashing, session create/verify/destroy
    ├─ csv importer        decode → sniff → parse → reject-account → infer types
-   ├─ compute engine      pure: (rows, filter, block spec) → value + trace
-   └─ revisions module    diff saved report → human-readable change summary
+   ├─ compute engine      pure: (rows, filters, block spec) → values + trace
+   └─ revisions module    versioned snapshots + human-readable what-changed diffs
    ▼
 Prisma ORM ──► SQLite (var/dev.db)
 CSV bytes on disk (var/uploads/) — written once, never served over HTTP
@@ -91,7 +91,7 @@ Rules that keep this honest:
 
 1. **One compute path.** Builder preview, owner view, and share view all render the return value of the same `computeReport` call. There is no second implementation of any number anywhere, including the client.
 2. **Authorization at the data layer.** Pages and handlers cannot request data without supplying a user id or share token; the access layer refuses everything else. "Enforced where the data is read" is structural, not a per-screen check.
-3. **The share path is token-only.** It resolves report-by-token with expiry and revocation checks before anything loads; expired, revoked, wrong, and partial tokens all yield the same not-found page.
+3. **The share path is token-only.** It resolves report-by-token with expiry and revocation checks before anything loads; unknown, expired, and revoked tokens each get a friendly page that exposes no report content.
 
 ## 4. Data Model
 
@@ -100,15 +100,15 @@ Rules that keep this honest:
 | `User` | id, email (unique), passwordHash, createdAt | scrypt hash with embedded salt. |
 | `Session` | id, tokenHash (unique), userId, expiresAt, createdAt | Raw token never stored. |
 | `Dataset` | id, userId, name, originalFilename, storagePath, byteSize, encoding, rowCount, rejectedCount, status, createdAt | `status: ready \| failed`; immutable after import. |
-| `DatasetColumn` | id, datasetId, position, name, guessedType (`number\|date\|category\|text`), confidence, statsJson | Stats: missing count, distinct count, per-type parse counts, min/max, samples, ambiguity flags — this JSON is what the profile page explains the guess with. |
+| `DatasetColumn` | id, datasetId, position, name, guessedType (`number\|date\|category\|text`), statsJson | Stats: missing count, distinct count, per-type parse counts, samples, date-dialect flags — this JSON is what the profile page explains the guess with. |
 | `DatasetRow` | id, datasetId, rowNumber, dataJson | Values keyed by column name; JSON keeps the schema stable across CSV shapes. |
 | `RejectedRow` | id, datasetId, rowNumber, reason, rawSnippet | Powers the "could not be read" list; nothing is dropped without a row here. |
-| `Report` | id, userId, datasetId, title, description, filterJson, version, createdAt, updatedAt | `filterJson`: at most one date-range + one category filter. |
+| `Report` | id, userId, datasetId, title, description, filterJson, version, createdAt, updatedAt | `filterJson`: array of up to 10 typed conditions (ANDed). |
 | `Block` | id, reportId, position, type (`metric\|chart\|table\|note`), title, specJson | Specs are small typed JSON validated by zod. |
-| `ShareLink` | id, reportId, tokenHash (unique), createdAt, expiresAt, revokedAt | Expiry required (default 7d, max 90d); revoke = set `revokedAt`. |
-| `ReportRevision` | id, reportId, version, createdBy, createdAt, summaryJson | Array of human-readable change strings written at save time. |
+| `ShareLink` | id, reportId, tokenHash (unique), createdAt, expiresAt, revokedAt, versionAtShare | Expiry required (default 7d, max 90d); revoke = set `revokedAt`; `versionAtShare` anchors the what-changed diff. |
+| `ReportRevision` | id, reportId, version, createdBy, createdAt, summaryJson | Human-readable snapshot (title, description, filter descriptions, block labels) written in the same transaction as each version bump. |
 
-Indexes: `Dataset.userId`, `Report.userId`, `Block(reportId, position)`, `Block.reportId`, `ShareLink.tokenHash`, `DatasetRow.datasetId`. Foreign keys cascade from `Dataset` and `Report` so deleting a dataset (and its rows) or report cleans up fully.
+Indexes: `Dataset.userId`, `DatasetColumn.datasetId`, `DatasetRow.datasetId`, `RejectedRow.datasetId`, `Report.userId`, `Block.reportId`, `ShareLink.reportId` (+ unique `tokenHash`), `ReportRevision.reportId`. Foreign keys cascade from `Dataset`, `Report`, and `User`; `Report.datasetId` is `SetNull` so deleting a dataset degrades its reports with a clear state instead of deleting them.
 
 Rough row math: a 3,000-row CSV with 10 columns ≈ 30,000 `DatasetRow` rows of small JSON — trivial for SQLite. The 50,000-row cap keeps single-file imports comfortably sub-second to low-seconds.
 
@@ -116,30 +116,30 @@ Rough row math: a 3,000-row CSV with 10 columns ≈ 30,000 `DatasetRow` rows of 
 
 ### 5.1 Upload → profile
 
-1. Route handler accepts multipart upload; content-length and streamed byte count enforce the 10 MB cap (no trust in headers alone).
+1. A server action receives the multipart upload (Next.js body-size cap configured just above 10 MB); the importer re-checks the byte count and the row/column caps and returns a typed error, never a truncation.
 2. Importer decodes (UTF-8/BOM aware, UTF-16 with BOM), sniffs delimiter, parses with `csv-parse`.
 3. Every skipped row is captured with line number and reason → `RejectedRow`. Blank lines and empty columns are counted for the profile.
 4. Type inference runs per column (rules in PRD §4) → `DatasetColumn.statsJson` keeps the evidence (parse pass/fail counts, ambiguity flags).
-5. Rows, columns, and rejected rows are persisted in one transaction; the raw file is moved to `var/uploads/<uuid>.csv` (mode 600, never in a served directory).
+5. Rows, columns, and rejected rows are persisted in one transaction; the raw file is written to `var/uploads/<uuid>` under a random name, outside any served directory, and is never returned over HTTP.
 6. The profile page renders from the database — counts, guesses with reasons, rejected-row list, first-rows preview.
 
 ### 5.2 A number from file to screen (the consistency guarantee)
 
 1. Page load (builder visit, owner view, or share view) first resolves authorization: session → userId, or share token → (report, checks passed).
 2. The access layer loads the dataset rows **and** the report's blocks + filter.
-3. `computeReport(rows, filter, blocks)` runs each block in one pass, returning for each: the value(s)/series/table rows **and** a trace `{description, specRun, accounting}` where `accounting` reconciles `fileRows = rejectedAtImport + excludedByFilter + excludedByMissingValue + includedRows` (per group for split metrics and chart series).
+3. The compute engine runs the report's filters once, then each block through its own pure function (`computeMetric`, `computeChart`, `computeTable`, or a note pass-through) behind one `computeBlocks` dispatcher, returning for each: the value(s)/series/table rows **and** a trace with a formula line, filter descriptions, full row accounting, and sample source rows — `usable = included + excludedByFilter` and `included = valuesUsed + excludedByMissing + excludedByUnparseable` hold line by line in the rendered panel.
 4. The page renders values and trace panels from that single object; navigation between preview and saved view changes nothing about the math. If a number appears on screen, its trace was computed in the same call.
 
 ### 5.3 Share link lifecycle
 
 1. **Create:** owner picks an expiry (default 7 days, max 90). Server generates 32 random bytes, stores only `sha256(token)`, returns the URL once.
-2. **View:** `/s/<token>` hashes the token, looks up the link, checks `revokedAt is null` and `expiresAt > now`, then loads the report through the token-scoped path — report title, blocks, computed values, traces, and revisions newer than the link's creation. Nothing else is reachable from this path, and there is no raw-file endpoint anywhere in the app.
-3. **Revoke:** sets `revokedAt`; the next request 404s (share pages are `force-dynamic`, `no-store`) — no caches to wait out.
-4. **Edge cases:** expired/revoked/unknown/partial tokens render one identical not-found page (no oracle, no enumeration signal); every invalid link test injects a fixed clock.
+2. **View:** `/s/<token>` hashes the token, looks up the link, checks `revokedAt is null` and `expiresAt > now`, then loads the report through the token-scoped path — report title, blocks, computed values, traces, and the what-changed diff against the revision snapshot at `versionAtShare`. Nothing else is reachable from this path, and there is no raw-file endpoint anywhere in the app.
+3. **Revoke:** sets `revokedAt`; the next request is denied (share pages are `force-dynamic`) — no caches to wait out.
+4. **Edge cases:** unknown, expired, and revoked tokens render friendly, distinctly worded pages that expose no report content and no enumeration signal beyond the token's own state; link-lifecycle tests control the clock rather than sleeping.
 
 ### 5.4 What changed
 
-On Save, the revisions module diffs previous vs next report and appends a `ReportRevision` with human-readable entries (block added/removed/reordered/edited, filter changed). The owner sees the full timeline; viewers see entries newer than their link's creation date, with a "new since last visit" badge from a cookie storing the last-seen version per link. Entries contain block titles and change kinds only — never internal ids or data.
+Every report mutation runs through a helper that applies the change, bumps `Report.version`, and stores a snapshot revision (title, description, filter descriptions, block labels) — all in one transaction. Share links record `versionAtShare`; the viewer page diffs that version's snapshot against the live report and renders "What changed since this link was shared (v3 → v5)". The owner gets the same diff as a live preview on the share page. Entries contain human-readable labels only — never ids, statistics, or raw data. (The "last seen" badge was cut by plan; the panel itself is built.)
 
 ## 6. Security Posture
 
@@ -148,11 +148,11 @@ On Save, the revisions module diffs previous vs next report and appends a `Repor
 | Broken access control | Access layer requires userId or share token on every call; no unscoped reads exist to misuse. Share path resolves by token only. |
 | SQL injection | Prisma only; no string-built SQL anywhere in the codebase, so the assignment's requirement is structurally met rather than reviewed case by case. |
 | XSS | React auto-escaping; no `dangerouslySetInnerHTML`; CSV values and note text rendered as plain text. |
-| CSRF | SameSite=Lax cookies + Origin check on state-changing requests; server actions verify origin by default. |
+| CSRF | All mutations are Next.js server actions, which validate Origin/Host by default; the session cookie is SameSite=Lax, httpOnly. |
 | Session theft | httpOnly + Secure (prod) cookies; tokens SHA-256-hashed at rest; server-side revocation. |
-| Token guessing | 256-bit tokens, hashed at rest, constant-shaped errors for invalid links. |
+| Token guessing | 256-bit tokens, hashed at rest; unknown tokens reveal nothing; expired/revoked pages are state-specific but contain no report data. |
 | Upload abuse | Size/row/column caps, encoding validation, magic-byte sniffing; file stored outside served paths. |
-| Data over-exposure in shares | Share render includes only report content + traces + revision summaries; no dataset name, profile, rejected rows, or owner identity. |
+| Data over-exposure in shares | Share render includes report content, traces (with a few sample source rows, by design), and the what-changed diff; no dataset id/filename/path (display name only), no profile, no rejected rows, no owner identity. |
 | Password storage | scrypt with per-user salt and constant-time comparison. |
 | **Known gaps (stated honestly in README)** | No rate limiting or brute-force lockout, no email verification or password reset, no audit log. |
 
@@ -199,9 +199,9 @@ The planned fix path, in order: push aggregations into SQL (`GROUP BY` via Prism
 ## 9. Test Tooling
 
 - Vitest runs all suites; test files sit next to the modules they test.
-- Each database-touching suite gets a fresh temporary SQLite file (`prisma migrate deploy` against it in setup, delete in teardown).
+- Database-touching tests run against a throwaway SQLite file (`var/test.db`, set through the Vitest config env); suites create fixtures under throwaway users and remove them in teardown — the schema's cascades clean up the rest.
 - Time-dependent tests (link expiry) pass an explicit `now` into the resolver — no fake timers, no flakes.
-- Fixtures: `sample-data/messy.csv` (demo/import tests) plus tiny byte-level fixtures for encoding and `.xlsx`-magic-byte cases, and prose/binary "not a CSV" files.
+- Fixtures: `sample-data/messy_orders.csv` (demo/import tests) plus tiny byte-level fixtures for encoding and `.xlsx`-magic-byte cases, and prose/binary "not a CSV" files.
 
 ## 10. Deployment (optional live link)
 
