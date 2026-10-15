@@ -251,6 +251,20 @@ export function parseColumnStats(statsJson: string): ParsedColumnStats | null {
   }
 }
 
+/** Parses a stored row's JSON back into a column-name → value map. A corrupt
+ * row renders as blanks rather than crashing whatever page is showing it. */
+export function parseRowValues(dataJson: string): Record<string, string> {
+  try {
+    const raw: unknown = JSON.parse(dataJson);
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+      return raw as Record<string, string>;
+    }
+  } catch {
+    // Fall through to the empty object.
+  }
+  return {};
+}
+
 export function deriveDatasetName(originalFilename: string): string {
   const base = originalFilename
     .replace(/\.csv$/i, "")

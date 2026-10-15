@@ -37,18 +37,27 @@ export async function verifyPassword(
 }
 
 /**
- * Session tokens are 32 random bytes. Only the SHA-256 hash is stored, so a
- * database leak does not leak usable session tokens.
+ * Session and share tokens are 32 random bytes. Only the SHA-256 hash is
+ * stored, so a database leak does not leak usable tokens.
  */
+export function sha256Hex(value: string): string {
+  return createHash("sha256").update(value).digest("hex");
+}
+
 function hashSessionToken(token: string): string {
-  return createHash("sha256").update(token).digest("hex");
+  return sha256Hex(token);
+}
+
+/** A fresh 32-byte token, URL-safe. */
+export function generateToken(): string {
+  return randomBytes(32).toString("base64url");
 }
 
 export async function createSession(
   userId: string,
   database: PrismaClient = db,
 ): Promise<{ token: string; expiresAt: Date }> {
-  const token = randomBytes(32).toString("base64url");
+  const token = generateToken();
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
   await database.session.create({
     data: { tokenHash: hashSessionToken(token), userId, expiresAt },

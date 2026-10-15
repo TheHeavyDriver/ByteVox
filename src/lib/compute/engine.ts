@@ -10,6 +10,8 @@ import {
   describeChartMetric,
   describeFilter,
   describeMetric,
+  parseBlockDefinition,
+  type BlockDefinition,
   type ChartSpec,
   type FilterCondition,
   type MetricSpec,
@@ -545,4 +547,73 @@ export function computeTable(spec: TableSpec, ctx: ComputeContext): TableResult 
       notes,
     },
   };
+}
+
+// ---------------------------------------------------------------------------
+// Block dispatch
+// ---------------------------------------------------------------------------
+
+export type BlockInput = {
+  id: string;
+  position: number;
+  type: string;
+  title: string;
+  specJson: string;
+};
+
+export type BlockView = {
+  id: string;
+  position: number;
+  type: string;
+  title: string;
+  definition: BlockDefinition | null;
+  metric?: MetricResult;
+  chart?: ChartResult;
+  table?: TableResult;
+};
+
+/**
+ * Turns stored blocks into computed views. A block whose stored spec no
+ * longer parses (or whose type disagrees with it) comes back with
+ * definition: null so pages can render an honest "unreadable block" state
+ * instead of guessing.
+ */
+export function computeBlocks(
+  blocks: BlockInput[],
+  ctx: ComputeContext,
+): BlockView[] {
+  return blocks.map((block) => {
+    const base = {
+      id: block.id,
+      position: block.position,
+      type: block.type,
+      title: block.title,
+    };
+    const definition = parseBlockDefinition(block.specJson);
+    if (!definition || definition.type !== block.type) {
+      return { ...base, definition: null };
+    }
+    switch (definition.type) {
+      case "metric":
+        return {
+          ...base,
+          definition,
+          metric: computeMetric(definition.metric, ctx),
+        };
+      case "chart":
+        return {
+          ...base,
+          definition,
+          chart: computeChart(definition.chart, ctx),
+        };
+      case "table":
+        return {
+          ...base,
+          definition,
+          table: computeTable(definition.table, ctx),
+        };
+      case "note":
+        return { ...base, definition };
+    }
+  });
 }

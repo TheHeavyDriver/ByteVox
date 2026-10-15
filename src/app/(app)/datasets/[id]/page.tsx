@@ -5,8 +5,10 @@ import {
   getDatasetPreviewRows,
   parseColumnStats,
   parseProfileMeta,
+  parseRowValues,
 } from "@/lib/datasets";
 import { formatBytes, formatDateTimeUTC, truncate } from "@/lib/format";
+import { createReportAction } from "@/lib/report-actions";
 import { getCurrentUser } from "@/lib/session";
 import { DeleteDatasetForm, RenameForm } from "./dataset-controls";
 
@@ -51,19 +53,6 @@ function Stat({
   );
 }
 
-function parseRowValues(dataJson: string): Record<string, string> {
-  try {
-    const raw: unknown = JSON.parse(dataJson);
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-      return raw as Record<string, string>;
-    }
-  } catch {
-    // Fall through to the empty object: a corrupt row renders as blanks
-    // rather than crashing the page.
-  }
-  return {};
-}
-
 export default async function DatasetPage({
   params,
 }: {
@@ -104,6 +93,44 @@ export default async function DatasetPage({
         </div>
         <RenameForm datasetId={dataset.id} name={dataset.name} />
       </div>
+
+      <section className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+        <h2 className="text-sm font-semibold text-stone-900">
+          Build a report from this dataset
+        </h2>
+        <p className="mt-1 max-w-3xl text-sm text-stone-600">
+          Reports start with a row-count block; add metrics, charts, tables,
+          and notes. Every number keeps its row-level explanation, and you can
+          share a read-only link with a “what changed” view.
+        </p>
+        <form
+          action={createReportAction}
+          className="mt-3 flex flex-wrap items-end gap-3"
+        >
+          <input type="hidden" name="datasetId" value={dataset.id} />
+          <div>
+            <label
+              htmlFor="new-report-title"
+              className="block text-xs font-medium text-stone-600"
+            >
+              Report title
+            </label>
+            <input
+              id="new-report-title"
+              name="title"
+              defaultValue={`${dataset.name} report`}
+              maxLength={120}
+              className="mt-1 w-72 rounded-md border border-stone-300 bg-white px-2.5 py-1.5 text-sm shadow-sm focus:border-stone-500 focus:outline-none focus:ring-1 focus:ring-stone-500"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-md bg-stone-900 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-stone-700"
+          >
+            Create report
+          </button>
+        </form>
+      </section>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         <Stat label="Usable rows" value={dataset.rowCount.toLocaleString()} />

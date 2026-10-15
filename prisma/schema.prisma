@@ -102,7 +102,7 @@ model Report {
   dataset     Dataset? @relation(fields: [datasetId], references: [id], onDelete: SetNull)
   title       String
   description String   @default("")
-  filterJson  String   @default("{}")
+  filterJson  String   @default("[]")
   version     Int      @default(1)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -127,13 +127,17 @@ model Block {
 }
 
 model ShareLink {
-  id        String    @id @default(cuid())
-  reportId  String
-  report    Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  tokenHash String    @unique
-  createdAt DateTime  @default(now())
-  expiresAt DateTime
-  revokedAt DateTime?
+  id             String    @id @default(cuid())
+  reportId       String
+  report         Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  tokenHash      String    @unique
+  createdAt      DateTime  @default(now())
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  // The report version that was current when this link was created. The
+  // public view diffs the revision snapshot at this version against the
+  // live report to answer "what changed since this link was shared?".
+  versionAtShare Int       @default(1)
 
   @@index([reportId])
 }
