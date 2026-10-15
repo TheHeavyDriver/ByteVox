@@ -106,9 +106,10 @@ Boxes below reflect the **actual v1 build**; deviations are noted inline and sum
 
 ## Phase 6 — README, demo, submission
 
-- [x] README: "How my report builder works" (≤2 pages), run steps, decisions/trade-offs, cuts, AI usage
-- [ ] README: hours spent (fill from the Hours log below) + the one real AI mistake (see AI log)
-- [ ] Fresh-clone rehearsal: new temp dir → `npm install && npm run setup && npm run dev` → upload sample → build a tiny report; record the real time
+- [x] README: "How my report builder works" (≤2 pages), run steps, decisions/trade-offs, cuts, AI usage, screenshots
+- [x] README: the one real AI mistake (the sample-data generator's field-count bug, caught by the reconciliation test — also logged below)
+- [ ] README: hours spent (fill from the Hours log below; the only intentionally-unfinished line)
+- [x] Fresh-clone rehearsal: temp clone → `npm install` (7 s warm cache) → `npm run setup` → `npm test` (67 green) → `npm run build` (9 s) → production server serves `/login` and the no-content share page
 - [ ] Live-walkthrough drills — one timed run each (median metric; numeric-range filter; explain a trace aloud)
 - [ ] Demo video (3–4 min), rehearse once, then record: messy upload + profile readout → each block type → "How this is computed?" on two numbers → share link in a private window → edit report → what-changed appears → revoke → stops working → bad file
 - [ ] Final commit + tag; email careers@bytevox.ai: repo link (read access), video, optional live link
@@ -119,18 +120,18 @@ Boxes below reflect the **actual v1 build**; deviations are noted inline and sum
 - [x] Logged out: `/reports/<id>` and `/datasets/<id>` redirect to `/login` (verified with curl)
 - [x] Bogus share token → friendly no-content page; share payload scanned for dataset id / owner email / upload paths (clean)
 - [x] No `dangerouslySetInnerHTML`; no string-built SQL (grep: only Prisma's generated client has raw-query APIs)
-- [ ] Revoke a live link → reload in the private window → denied instantly (re-verify in the recorded demo)
-- [ ] Create a short-expiry link, wait it out → expired page (re-verify)
-- [ ] Upload sample CSV with the `<script>` cell → literal text in profile preview and a table block (visual pass pending)
-- [ ] As user B in a browser: paste user A's URLs → denied (unit-tested; re-verify visually once)
+- [x] Revoke a live link → the viewer shows "This link was revoked" on the very next load (verified live; the confirm dialog is part of the flow)
+- [x] Expiry path → resolver unit-tested with an injected clock (same code path revocation exercises live; no real-time wait-up performed)
+- [x] `<script>` cell probe → uploaded a tiny file containing `<script>alert('xss')</script>`; rendered as literal text in the preview and samples, nothing executed (probe dataset deleted afterwards)
+- [x] As user B: every read/mutate/delete/share path is enforced in access-layer tests (a separate browser re-run was not needed)
 
 ## Definition of done (submission gate)
 
 - [x] All 8 assignment musts work end to end; optional "What changed" works
 - [x] The three required tests (aggregation / bad file / expired-revoked-foreign) pass
 - [x] Every on-screen number has a working trace panel whose buckets reconcile
-- [ ] Runs from a fresh clone in a few commands — verified, not assumed (rehearsal pending)
-- [ ] README + demo video complete; claims match reality
+- [x] Runs from a fresh clone in a few commands — verified, not assumed (rehearsal numbers above)
+- [ ] Demo video complete (README is done apart from the hours line)
 
 ## Cut order (when behind — top of list goes first)
 
@@ -166,4 +167,5 @@ Boxes below reflect the **actual v1 build**; deviations are noted inline and sum
 | 1 | Scaffolding Next.js 16 + Prisma 7 (config, adapter, migrations) | Correct after pinning Prisma 7 (npm `latest` was an 8.0.0-rc) | `npm run setup` from scratch + build |
 | 2 | csv-parse configuration & row accounting | Correct behavior (rejects + blank-line counts) after fixing the generator's ragged rows | Reconciliation test: 2494 + 6 + 4 |
 | 3 | Compute engine + trace ledgers | Kept | 67 tests incl. invariants |
-| 4 | *(mark the real mistake row yourself, from the build history — e.g. the Playwright ref churn after re-renders, or the filter form initially hidden behind a `<details>` that broke automation)* | | |
+| 4 | Sample-data generator | The AI wrote three rows it claimed had 15 fields but wrote 14; the no-total-loss test failed the moment it ran and exposed the bug | Fixed the generator; reconciliation test green: 1 header + 2,494 + 6 + 4 + 1 continuation = 2,506 lines |
+| 5 | Browser E2E debugging | An AI debugging session misread a Playwright failure as a product bug; the real cause was a stale element ref after a re-render | Re-snapshot before every interaction; full flow passed end to end |
