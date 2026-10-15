@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+var/
+.env
+.env*.local
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+src/generated/
+
+# Prisma init wrote these editor/AI helper folders; not part of the app.
+.agents/
+.claude/
+.windsurf/
+skills-lock.json

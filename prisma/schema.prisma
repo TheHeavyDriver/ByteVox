@@ -1,0 +1,150 @@
+// This is the Prisma schema — the single source of truth for the database
+// shape. Migrations under prisma/migrations are generated from it.
+//
+// Design notes:
+// - No raw SQL strings are ever built from user input anywhere in the app;
+//   all database access goes through the generated Prisma client.
+// - Report.datasetId is nullable with onDelete: SetNull so that deleting a
+//   dataset degrades its reports with a clear error state instead of
+//   silently deleting them (or breaking).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+  sessions     Session[]
+  datasets     Dataset[]
+  reports      Report[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Dataset {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name             String
+  originalFilename String
+  storagePath      String
+  byteSize         Int
+  encoding         String
+  rowCount         Int
+  rejectedCount    Int
+  status           String   @default("ready")
+  createdAt        DateTime @default(now())
+
+  columns      DatasetColumn[]
+  rows         DatasetRow[]
+  rejectedRows RejectedRow[]
+  reports      Report[]
+
+  @@index([userId])
+}
+
+model DatasetColumn {
+  id          String  @id @default(cuid())
+  datasetId   String
+  dataset     Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  position    Int
+  name        String
+  guessedType String
+  statsJson   String
+
+  @@index([datasetId])
+}
+
+model DatasetRow {
+  id        String  @id @default(cuid())
+  datasetId String
+  dataset   Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  rowNumber Int
+  dataJson  String
+
+  @@index([datasetId])
+}
+
+model RejectedRow {
+  id         String  @id @default(cuid())
+  datasetId  String
+  dataset    Dataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  rowNumber  Int
+  reason     String
+  rawSnippet String
+
+  @@index([datasetId])
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  datasetId   String?
+  dataset     Dataset? @relation(fields: [datasetId], references: [id], onDelete: SetNull)
+  title       String
+  description String   @default("")
+  filterJson  String   @default("{}")
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  blocks     Block[]
+  shareLinks ShareLink[]
+  revisions  ReportRevision[]
+
+  @@index([userId])
+}
+
+model Block {
+  id       String @id @default(cuid())
+  reportId String
+  report   Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  position Int
+  type     String
+  title    String @default("")
+  specJson String
+
+  @@index([reportId])
+}
+
+model ShareLink {
+  id        String    @id @default(cuid())
+  reportId  String
+  report    Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  createdAt DateTime  @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  @@index([reportId])
+}
+
+model ReportRevision {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  version     Int
+  createdBy   String
+  createdAt   DateTime @default(now())
+  summaryJson String
+
+  @@index([reportId])
+}
