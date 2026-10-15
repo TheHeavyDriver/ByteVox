@@ -206,14 +206,12 @@ export default async function ReportPage({
         )}
 
         {datasetCtx && (
-          <details className="mt-4">
-            <summary className="cursor-pointer select-none text-sm font-medium text-stone-700">
+          <div className="mt-4 border-t border-stone-100 pt-4">
+            <p className="mb-3 text-sm font-medium text-stone-700">
               Add a filter
-            </summary>
-            <div className="mt-3">
-              <AddFilterForm reportId={report.id} columns={editorColumns} />
-            </div>
-          </details>
+            </p>
+            <AddFilterForm reportId={report.id} columns={editorColumns} />
+          </div>
         )}
       </section>
 

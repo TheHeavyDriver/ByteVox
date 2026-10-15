@@ -62,6 +62,27 @@ export async function createReport(
           specJson: JSON.stringify(DEFAULT_BLOCK),
         },
       });
+      // v1 gets a snapshot too, so a share link created before any edit can
+      // still diff exactly ("what changed since this link was shared").
+      const blocks = await tx.block.findMany({
+        where: { reportId: report.id },
+        orderBy: { position: "asc" },
+      });
+      await tx.reportRevision.create({
+        data: {
+          reportId: report.id,
+          version: report.version,
+          createdBy: userId,
+          summaryJson: JSON.stringify(
+            buildReportSnapshot({
+              title: report.title,
+              description: report.description,
+              filterJson: report.filterJson,
+              blocks,
+            }),
+          ),
+        },
+      });
       return report;
     },
     { timeout: 20_000 },

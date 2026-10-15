@@ -52,7 +52,11 @@ const SAMPLE_SIZE = 5;
 const IDENTIFIER_MIN_ROWS = 20;
 
 function pct(part: number, whole: number): number {
-  return whole === 0 ? 0 : Math.round((part / whole) * 100);
+  if (whole === 0) return 0;
+  const value = (part / whole) * 100;
+  // Small shares keep one decimal (0.2% reads better than 0%), larger ones
+  // stay whole numbers.
+  return value >= 10 ? Math.round(value) : Math.round(value * 10) / 10;
 }
 
 export function inferColumn(
@@ -148,11 +152,11 @@ export function inferColumn(
     // Conflicting unambiguous values — pick the majority, and say so.
     dialect = dayOnly >= monthOnly ? "day-first" : "month-first";
     stats.date.flags.push(
-      "values use both D/M/Y and M/D/Y orders; the majority was chosen",
+      "Values use both D/M/Y and M/D/Y orders; the majority was chosen",
     );
   } else if (ambiguous > 0) {
     stats.date.flags.push(
-      "day vs month order is ambiguous; interpreted as D/M/Y (day first)",
+      "Day vs month order is ambiguous; interpreted as D/M/Y (day first)",
     );
   }
   stats.date.dialect = dialect;

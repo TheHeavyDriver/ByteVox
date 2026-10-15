@@ -1,0 +1,93 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e32] [cursor=pointer]
+  - alert [ref=e36]: messy_orders report
+  - generic [ref=e37]:
+    - banner [ref=e38]:
+      - generic [ref=e39]:
+        - link "ByteVox Report Builder" [ref=e40] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e41]:
+          - generic [ref=e42]: demo@bytevox.test
+          - button "Sign out" [ref=e44]
+    - main [ref=e45]:
+      - generic [ref=e423]:
+        - generic [ref=e424]:
+          - generic [ref=e425]:
+            - generic [ref=e426]:
+              - link "← All reports" [ref=e427] [cursor=pointer]:
+                - /url: /
+              - heading "messy_orders report" [level=1] [ref=e428]
+              - paragraph [ref=e429]:
+                - text: "v1 · updated 15 Oct 2026, 22:25 UTC · dataset:"
+                - link "messy_orders" [ref=e430] [cursor=pointer]:
+                  - /url: /datasets/cmva3uwy000025lwoqbb0m0te
+            - link "Share" [ref=e431] [cursor=pointer]:
+              - /url: /reports/cmva3x9pd01xv5lwors7rgtk3/share
+          - group [ref=e432]:
+            - generic "Edit title and description" [ref=e433] [cursor=pointer]
+        - generic [ref=e434]:
+          - generic [ref=e435]:
+            - heading "Filters" [level=2] [ref=e436]
+            - paragraph [ref=e437]: Applied to every block; rows they exclude are counted in each block's explanation.
+          - paragraph [ref=e438]: No filters — every usable row counts.
+          - group [ref=e439]:
+            - generic "Add a filter" [ref=e440] [cursor=pointer]
+            - option "order_id (text)" [selected]
+            - option "order_date (date)"
+            - option "customer (text)"
+            - option "region (category)"
+            - option "product (category)"
+            - option "quantity (number)"
+            - option "unit_price (number)"
+            - option "discount_pct (number)"
+            - option "total_amount (number)"
+            - option "status (category)"
+            - option "notes (text)"
+            - option "region (2) (category)"
+            - option "contains" [selected]
+            - option "equals"
+            - option "is blank"
+            - option "is not blank"
+        - generic [ref=e441]:
+          - heading "Blocks" [level=2] [ref=e442]
+          - generic [ref=e443]:
+            - generic [ref=e444]:
+              - button "Move block up" [disabled] [ref=e446]: ↑
+              - button "Move block down" [disabled] [ref=e448]: ↓
+              - button "Edit" [ref=e449]
+              - button "Delete" [ref=e451]
+            - generic [ref=e452]:
+              - heading "Row count" [level=3] [ref=e455]
+              - generic [ref=e456]:
+                - paragraph [ref=e457]: Row count
+                - paragraph [ref=e458]: 2,494
+                - group [ref=e459]:
+                  - generic "How this is computed" [ref=e460] [cursor=pointer]
+          - generic [ref=e461]:
+            - generic [ref=e462]:
+              - generic [ref=e463]: "Add a block:"
+              - button "Metric" [ref=e464]
+              - button "Chart" [ref=e465]
+              - button "Table" [ref=e466]
+              - button "Note" [ref=e467]
+            - generic [ref=e468]:
+              - generic [ref=e469]:
+                - generic [ref=e470]: Block title (optional)
+                - textbox "Block title (optional)" [ref=e471]:
+                  - /placeholder: e.g. Total revenue
+              - generic [ref=e473]:
+                - generic [ref=e474]: Metric
+                - combobox "Metric" [ref=e475]:
+                  - option "Row count" [selected]
+                  - option "Distinct values of a column"
+                  - option "Sum of a column"
+                  - option "Mean of a column"
+                  - option "Median of a column"
+                  - option "Minimum of a column"
+                  - option "Maximum of a column"
+              - paragraph [ref=e476]: Blank and unreadable cells are excluded from the result and counted in the explanation panel — never silently dropped.
+              - button "Add block" [ref=e477]
+        - generic [ref=e478]:
+          - heading "Danger zone" [level=2] [ref=e479]
+          - paragraph [ref=e480]: Deleting a report removes its blocks, revision history, and share links. The dataset it used stays untouched.
+          - button "Delete report" [ref=e483]

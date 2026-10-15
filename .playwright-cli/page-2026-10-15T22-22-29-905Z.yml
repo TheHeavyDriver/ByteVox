@@ -1,0 +1,36 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e32] [cursor=pointer]
+  - alert [ref=e36]: Upload a CSV
+  - generic [ref=e37]:
+    - banner [ref=e38]:
+      - generic [ref=e39]:
+        - link "ByteVox Report Builder" [ref=e40] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e41]:
+          - generic [ref=e42]: demo@bytevox.test
+          - button "Sign out" [ref=e44]
+    - main [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - heading "Upload a CSV" [level=1] [ref=e48]
+          - paragraph [ref=e49]: "Your file is profiled on import: column types are guessed with a written reason, and anything the importer had to work around is listed."
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - button "CSV file" [ref=e53] [cursor=pointer]
+              - button "Upload and profile" [ref=e54]
+            - paragraph [ref=e55]: "Up to 10 MB, 50,000 rows, 100 columns. Messy files are welcome: every adjustment, ignored column, and unreadable row is reported on the profile page — never hidden."
+        - generic [ref=e56]:
+          - heading "Datasets" [level=2] [ref=e58]
+          - generic [ref=e59]:
+            - heading "No datasets yet" [level=3] [ref=e60]
+            - paragraph [ref=e61]:
+              - text: Upload a CSV above. To see the messy cases handled, run
+              - code [ref=e62]: npm run demo:data
+              - text: and upload
+              - code [ref=e63]: sample-data/messy_orders.csv
+              - text: .
+        - generic [ref=e64]:
+          - heading "Reports" [level=2] [ref=e66]
+          - generic [ref=e67]:
+            - heading "No reports yet" [level=3] [ref=e68]
+            - paragraph [ref=e69]: Open a dataset and create one — every report starts with a row count block whose arithmetic is spelled out.

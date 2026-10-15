@@ -1,0 +1,40 @@
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - banner [ref=f5e3]:
+      - paragraph [ref=f5e4]: Shared report · read-only
+      - heading "messy_orders report" [level=1] [ref=f5e6]
+      - paragraph [ref=f5e7]: Built from messy_orders · report v5, updated 15 Oct 2026, 22:31 UTC · link created 15 Oct 2026, 22:30 UTC, expires 22 Oct 2026, 22:30 UTC
+    - group [ref=f5e8]:
+      - generic "What changed since this link was shared (v3 → v5)" [ref=f5e9] [cursor=pointer]
+      - list [ref=f5e10]:
+        - listitem [ref=f5e11]: "Filter added: total_amount is between 100 and 5000"
+        - listitem [ref=f5e12]: "Note block added: Note"
+      - paragraph [ref=f5e13]: You are looking at the latest version. Numbers below reflect v5.
+    - generic [ref=f5e14]:
+      - heading "Filters" [level=2] [ref=f5e15]
+      - list [ref=f5e16]:
+        - listitem [ref=f5e17]: status equals “shipped”
+        - listitem [ref=f5e18]: total_amount is between 100 and 5000
+    - generic [ref=f5e19]:
+      - generic [ref=f5e20]:
+        - heading "Row count" [level=3] [ref=f5e23]
+        - generic [ref=f5e24]:
+          - paragraph [ref=f5e25]: Row count
+          - paragraph [ref=f5e26]: "471"
+          - group [ref=f5e27]:
+            - generic "How this is computed" [ref=f5e28] [cursor=pointer]
+      - generic [ref=f5e29]:
+        - generic [ref=f5e31]:
+          - heading "Revenue by product" [level=3] [ref=f5e32]
+          - paragraph [ref=f5e33]: sum of total_amount by product
+        - group [ref=f5e37]:
+          - generic "How this is computed" [ref=f5e38] [cursor=pointer]
+      - generic [ref=f5e39]:
+        - generic [ref=f5e41]:
+          - heading "Reading this report" [level=3] [ref=f5e42]
+          - paragraph [ref=f5e43]: Note
+        - paragraph [ref=f5e44]: Numbers cover Jan-Dec 2024 orders only. 'shipped' rows with unknown totals are excluded from sums and counted in each block's ledger.
+    - contentinfo [ref=f5e45]:
+      - paragraph [ref=f5e46]: "Every number above traces back to rows in the source dataset: open a block's “How this is computed” panel to see the full count of rows included, excluded by filters, blank, and unparseable — plus sample source rows. Unreadable rows are listed with their exact reasons on the dataset profile."
+      - paragraph [ref=f5e47]: This link exposes only this report. It cannot reach the raw uploaded file, other reports, or the owner's account.
+  - button "Open Next.js Dev Tools" [ref=f5e53] [cursor=pointer]

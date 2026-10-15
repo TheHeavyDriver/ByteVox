@@ -1,0 +1,166 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e32] [cursor=pointer]
+  - alert [ref=e36]: ByteVox Report Builder
+  - generic [ref=e37]:
+    - banner [ref=e38]:
+      - generic [ref=e39]:
+        - link "ByteVox Report Builder" [ref=e40] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e41]:
+          - generic [ref=e42]: demo@bytevox.test
+          - button "Sign out" [ref=e44]
+    - main [ref=e45]:
+      - generic [ref=e423]:
+        - generic [ref=e424]:
+          - generic [ref=e425]:
+            - generic [ref=e426]:
+              - link "← All reports" [ref=e427] [cursor=pointer]:
+                - /url: /
+              - heading "messy_orders report" [level=1] [ref=e428]
+              - paragraph [ref=e429]:
+                - text: "v2 · updated 15 Oct 2026, 22:25 UTC · dataset:"
+                - link "messy_orders" [ref=e430] [cursor=pointer]:
+                  - /url: /datasets/cmva3uwy000025lwoqbb0m0te
+            - link "Share" [ref=e431] [cursor=pointer]:
+              - /url: /reports/cmva3x9pd01xv5lwors7rgtk3/share
+          - group [ref=e432]:
+            - generic "Edit title and description" [ref=e433] [cursor=pointer]
+        - generic [ref=e434]:
+          - generic [ref=e435]:
+            - heading "Filters" [level=2] [ref=e436]
+            - paragraph [ref=e437]: Applied to every block; rows they exclude are counted in each block's explanation.
+          - paragraph [ref=e438]: No filters — every usable row counts.
+          - group [ref=e439]:
+            - generic "Add a filter" [active] [ref=e440] [cursor=pointer]
+            - generic [ref=e606]:
+              - generic [ref=e607]:
+                - generic [ref=e608]:
+                  - generic [ref=e609]: Column
+                  - combobox "Column" [ref=e610]:
+                    - option "order_id (text)"
+                    - option "order_date (date)"
+                    - option "customer (text)"
+                    - option "region (category)"
+                    - option "product (category)"
+                    - option "quantity (number)"
+                    - option "unit_price (number)"
+                    - option "discount_pct (number)"
+                    - option "total_amount (number)"
+                    - option "status (category)" [selected]
+                    - option "notes (text)"
+                    - option "region (2) (category)"
+                - generic [ref=e611]:
+                  - generic [ref=e612]: Condition
+                  - combobox "Condition" [ref=e613]:
+                    - option "contains" [selected]
+                    - option "equals"
+                    - option "is blank"
+                    - option "is not blank"
+                - generic [ref=e614]:
+                  - generic [ref=e615]: Contains text
+                  - textbox "Contains text" [ref=e616]:
+                    - /placeholder: e.g. North
+              - button "Add filter" [ref=e617]
+        - generic [ref=e441]:
+          - heading "Blocks" [level=2] [ref=e442]
+          - generic [ref=e443]:
+            - generic [ref=e444]:
+              - button "Move block up" [disabled] [ref=e446]: ↑
+              - button "Move block down" [ref=e448]: ↓
+              - button "Edit" [ref=e449]
+              - button "Delete" [ref=e451]
+            - generic [ref=e452]:
+              - heading "Row count" [level=3] [ref=e455]
+              - generic [ref=e456]:
+                - paragraph [ref=e457]: Row count
+                - paragraph [ref=e458]: 2,494
+                - group [ref=e459]:
+                  - generic "How this is computed" [ref=e460] [cursor=pointer]
+          - generic [ref=e506]:
+            - generic [ref=e507]:
+              - button "Move block up" [ref=e509]: ↑
+              - button "Move block down" [disabled] [ref=e511]: ↓
+              - button "Edit" [ref=e512]
+              - button "Delete" [ref=e514]
+            - generic [ref=e515]:
+              - generic [ref=e517]:
+                - heading "Revenue by product" [level=3] [ref=e518]
+                - paragraph [ref=e519]: sum of total_amount by product
+              - generic [ref=e520]:
+                - application [ref=e524]:
+                  - generic [ref=e569]:
+                    - generic [ref=e570]:
+                      - generic [ref=e571]: Doohickey
+                      - generic [ref=e573]: Bracket
+                      - generic [ref=e575]: Gizmo
+                      - generic [ref=e577]: Flange
+                      - generic [ref=e579]: Thingama
+                      - generic [ref=e581]: Gadget
+                      - generic [ref=e583]: Contraption
+                      - generic [ref=e585]: Sprocket
+                      - generic [ref=e587]: (blank)
+                      - generic [ref=e589]: Widget
+                    - generic [ref=e591]:
+                      - generic [ref=e592]: "0"
+                      - generic [ref=e594]: 1M
+                      - generic [ref=e596]: 2M
+                      - generic [ref=e598]: 3M
+                      - generic [ref=e600]: 4M
+                - group [ref=e602]:
+                  - generic "How this is computed" [ref=e603] [cursor=pointer]
+          - generic [ref=e461]:
+            - generic [ref=e462]:
+              - generic [ref=e463]: "Add a block:"
+              - button "Metric" [ref=e464]
+              - button "Chart" [ref=e465]
+              - button "Table" [ref=e466]
+              - button "Note" [ref=e467]
+            - generic [ref=e484]:
+              - generic [ref=e485]:
+                - generic [ref=e486]: Block title (optional)
+                - textbox "Block title (optional)" [ref=e487]:
+                  - /placeholder: e.g. Revenue by region
+              - generic [ref=e488]:
+                - generic [ref=e489]:
+                  - generic [ref=e490]: Chart type
+                  - combobox "Chart type" [ref=e491]:
+                    - option "Bar — top groups by value" [selected]
+                    - option "Line — trend over values or time"
+                - generic [ref=e492]:
+                  - generic [ref=e493]: Group by
+                  - combobox "Group by" [ref=e494]:
+                    - option "order_id (text)" [selected]
+                    - option "order_date (date)"
+                    - option "customer (text)"
+                    - option "region (category)"
+                    - option "product (category)"
+                    - option "quantity (number)"
+                    - option "unit_price (number)"
+                    - option "discount_pct (number)"
+                    - option "total_amount (number)"
+                    - option "status (category)"
+                    - option "notes (text)"
+                    - option "region (2) (category)"
+                - generic [ref=e495]:
+                  - generic [ref=e496]: Value
+                  - combobox "Value" [ref=e497]:
+                    - option "Row count" [selected]
+                    - option "Sum of a column"
+                    - option "Mean of a column"
+                - generic [ref=e503]:
+                  - generic [ref=e504]: Value column
+                  - combobox "Value column" [ref=e505]:
+                    - option "quantity" [selected]
+                    - option "unit_price"
+                    - option "discount_pct"
+                    - option "total_amount"
+                - generic [ref=e498]:
+                  - generic [ref=e499]: Max groups shown
+                  - spinbutton "Max groups shown" [ref=e500]: "10"
+              - paragraph [ref=e501]: Date columns group by day and line charts keep every day. Other groupings show the top groups and say exactly how much was left out.
+              - button "Add block" [ref=e502]
+        - generic [ref=e478]:
+          - heading "Danger zone" [level=2] [ref=e479]
+          - paragraph [ref=e480]: Deleting a report removes its blocks, revision history, and share links. The dataset it used stays untouched.
+          - button "Delete report" [ref=e483]
+  - generic [aria-hidden] [ref=e604]: "0"

@@ -1,0 +1,28 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - banner [ref=f3e3]:
+      - paragraph [ref=f3e4]: Shared report · read-only
+      - heading "messy_orders report" [level=1] [ref=f3e6]
+      - paragraph [ref=f3e7]: Built from messy_orders · report v3, updated 15 Oct 2026, 22:29 UTC · link created 15 Oct 2026, 22:30 UTC, expires 22 Oct 2026, 22:30 UTC
+    - generic [ref=f3e8]:
+      - heading "Filters" [level=2] [ref=f3e9]
+      - list [ref=f3e10]:
+        - listitem [ref=f3e11]: status equals “shipped”
+    - generic [ref=f3e12]:
+      - generic [ref=f3e13]:
+        - heading "Row count" [level=3] [ref=f3e16]
+        - generic [ref=f3e17]:
+          - paragraph [ref=f3e18]: Row count
+          - paragraph [ref=f3e19]: "673"
+          - group [ref=f3e20]:
+            - generic "How this is computed" [ref=f3e21] [cursor=pointer]
+      - generic [ref=f3e22]:
+        - generic [ref=f3e24]:
+          - heading "Revenue by product" [level=3] [ref=f3e25]
+          - paragraph [ref=f3e26]: sum of total_amount by product
+        - group [ref=f3e30]:
+          - generic "How this is computed" [ref=f3e31] [cursor=pointer]
+    - contentinfo [ref=f3e32]:
+      - paragraph [ref=f3e33]: "Every number above traces back to rows in the source dataset: open a block's “How this is computed” panel to see the full count of rows included, excluded by filters, blank, and unparseable — plus sample source rows. Unreadable rows are listed with their exact reasons on the dataset profile."
+      - paragraph [ref=f3e34]: This link exposes only this report. It cannot reach the raw uploaded file, other reports, or the owner's account.
+  - button "Open Next.js Dev Tools" [ref=f3e40] [cursor=pointer]

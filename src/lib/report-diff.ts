@@ -26,7 +26,7 @@ export function buildReportSnapshot(input: {
   title: string;
   description: string;
   filterJson: string;
-  blocks: Array<{ id: string; type: string; specJson: string }>;
+  blocks: Array<{ id: string; type: string; title?: string; specJson: string }>;
 }): ReportSnapshot {
   return {
     title: input.title,
@@ -34,10 +34,11 @@ export function buildReportSnapshot(input: {
     filters: parseFilterList(input.filterJson).map(describeFilter),
     blocks: input.blocks.map((block) => {
       const definition = parseBlockDefinition(block.specJson);
+      const base = definition ? describeBlock(definition) : "(unreadable block)";
       return {
         id: block.id,
         type: block.type,
-        label: definition ? describeBlock(definition) : "(unreadable block)",
+        label: block.title ? `${block.title} — ${base}` : base,
       };
     }),
   };

@@ -137,7 +137,7 @@ function resolveHeaderNames(headerRow: string[]): {
 
   if (synthesizedNames.length > 0) {
     notes.push(
-      `${synthesizedNames.length} empty header cell${synthesizedNames.length === 1 ? " was" : "s were"} named ${synthesizedNames.join(", ")} and kept.`,
+      `${synthesizedNames.length} empty header cell${synthesizedNames.length === 1 ? " was" : "s were"} named ${synthesizedNames.join(", ")} rather than dropped.`,
     );
   }
   if (renamed.length > 0) {

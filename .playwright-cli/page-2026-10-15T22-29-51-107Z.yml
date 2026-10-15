@@ -1,0 +1,35 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - link "ByteVox Report Builder" [ref=f2e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f2e6]:
+          - generic [ref=f2e7]: demo@bytevox.test
+          - button "Sign out" [ref=f2e9]
+    - main [ref=f2e10]:
+      - generic [ref=f2e11]:
+        - generic [ref=f2e12]:
+          - link "← messy_orders report" [ref=f2e13] [cursor=pointer]:
+            - /url: /reports/cmva3x9pd01xv5lwors7rgtk3
+          - heading "Share" [level=1] [ref=f2e14]
+          - paragraph [ref=f2e15]: Share links are read-only, token-based, and point at the latest version of this report (currently v3). Anyone with a link sees every number's explanation — and a “what changed” panel for edits made after the link was created. The raw uploaded file is never exposed.
+        - generic [ref=f2e16]:
+          - heading "Create a share link" [level=2] [ref=f2e17]
+          - paragraph [ref=f2e18]: Default 7 days, up to 90. Links can be revoked at any time.
+          - generic [ref=f2e21]:
+            - generic [ref=f2e22]:
+              - generic [ref=f2e23]: Link stays active for
+              - combobox "Link stays active for" [ref=f2e24]:
+                - option "1 day"
+                - option "3 days"
+                - option "7 days" [selected]
+                - option "14 days"
+                - option "30 days"
+                - option "90 days"
+            - button "Create share link" [ref=f2e25]
+        - generic [ref=f2e26]:
+          - heading "Links" [level=2] [ref=f2e27]
+          - paragraph [ref=f2e28]: No share links yet.
+          - paragraph [ref=f2e29]: For privacy only the SHA-256 hash of each token is stored, so a link is shown once at creation and can never be re-displayed.
+  - button "Open Next.js Dev Tools" [ref=f2e35] [cursor=pointer]

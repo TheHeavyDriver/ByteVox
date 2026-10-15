@@ -1,0 +1,60 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - link "ByteVox Report Builder" [ref=f2e5] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f2e6]:
+          - generic [ref=f2e7]: demo@bytevox.test
+          - button "Sign out" [ref=f2e9]
+    - main [ref=f2e10]:
+      - generic [ref=f2e11]:
+        - generic [ref=f2e12]:
+          - link "← messy_orders report" [ref=f2e13] [cursor=pointer]:
+            - /url: /reports/cmva3x9pd01xv5lwors7rgtk3
+          - heading "Share" [level=1] [ref=f2e14]
+          - paragraph [ref=f2e15]: Share links are read-only, token-based, and point at the latest version of this report (currently v3). Anyone with a link sees every number's explanation — and a “what changed” panel for edits made after the link was created. The raw uploaded file is never exposed.
+        - generic [ref=f2e16]:
+          - heading "Create a share link" [level=2] [ref=f2e17]
+          - paragraph [ref=f2e18]: Default 7 days, up to 90. Links can be revoked at any time.
+          - generic [ref=f2e20]:
+            - generic [ref=f2e21]:
+              - generic [ref=f2e22]:
+                - generic [ref=f2e23]: Link stays active for
+                - combobox "Link stays active for" [ref=f2e24]:
+                  - option "1 day"
+                  - option "3 days"
+                  - option "7 days" [selected]
+                  - option "14 days"
+                  - option "30 days"
+                  - option "90 days"
+              - button "Create share link" [ref=f2e25]
+            - generic [ref=f2e40]:
+              - paragraph [ref=f2e41]: Shareable link — shown once. Only its hash is stored, so copy it now.
+              - generic [ref=f2e42]:
+                - textbox "Shareable link" [ref=f2e43]: http://localhost:3000/s/bfotGcCJTq8uB9-rUMmYCpzjXLBNcc4mg32ESgdcQr0
+                - button "Copy" [ref=f2e44]
+              - paragraph [ref=f2e45]: Anyone with this link can view the report read-only. Revoke it any time below.
+        - generic [ref=f2e26]:
+          - heading "Links" [level=2] [ref=f2e27]
+          - table [ref=f2e47]:
+            - rowgroup [ref=f2e48]:
+              - row [ref=f2e49]:
+                - columnheader "Created" [ref=f2e50]
+                - columnheader "Expires" [ref=f2e51]
+                - columnheader "Status" [ref=f2e52]
+                - columnheader "Version at share" [ref=f2e53]
+                - columnheader "Changes since" [ref=f2e54]
+                - columnheader "Revoke" [ref=f2e55]
+            - rowgroup [ref=f2e56]:
+              - row [ref=f2e57]:
+                - cell "15 Oct 2026, 22:30 UTC" [ref=f2e58]
+                - cell "22 Oct 2026, 22:30 UTC" [ref=f2e59]
+                - cell "active" [ref=f2e60]
+                - cell "v3" [ref=f2e62]
+                - cell "0" [ref=f2e63]
+                - cell [ref=f2e64]:
+                  - button "Revoke" [ref=f2e66]
+          - paragraph [ref=f2e29]: For privacy only the SHA-256 hash of each token is stored, so a link is shown once at creation and can never be re-displayed.
+  - button "Open Next.js Dev Tools" [ref=f2e35] [cursor=pointer]
+  - alert [ref=f2e39]

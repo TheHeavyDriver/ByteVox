@@ -182,8 +182,11 @@ export function describeBlock(definition: BlockDefinition): string {
       return `${describeChartMetric(definition.chart.metric)} by ${definition.chart.groupBy}`;
     case "table":
       return `Rows: ${definition.table.columns.join(", ")}`;
-    case "note":
-      return "Note";
+    case "note": {
+      const text = definition.note.text.trim().replace(/\s+/g, " ");
+      if (!text) return "Empty note";
+      return `Note: ${text.length > 60 ? `${text.slice(0, 59)}…` : text}`;
+    }
   }
 }
 
