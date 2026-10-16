@@ -1,36 +1,43 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SignInForm } from "@/components/auth-forms";
 import { getCurrentUser } from "@/lib/session";
-import { SignInForm, SignUpForm } from "./auth-forms";
 
-export const metadata: Metadata = { title: "Sign in — ByteVox Report Builder" };
+export const metadata: Metadata = { title: "Login — ByteVox Report Builder" };
 
 export default async function LoginPage() {
   const user = await getCurrentUser();
-  if (user) redirect("/");
+  if (user) redirect("/dashboard");
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col justify-center gap-8 px-4 py-12">
+    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center gap-6 px-4 py-12">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <Link
+          href="/"
+          className="text-2xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
+        >
           ByteVox Report Builder
-        </h1>
-        <p className="mt-1 max-w-xl text-sm text-stone-600">
+        </Link>
+        <p className="mt-1 text-sm text-stone-600">
           Upload a CSV, build a report, and share it with a link where every
           number shows how it was calculated.
         </p>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <section className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-medium">Sign in</h2>
-          <SignInForm />
-        </section>
-        <section className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-medium">Create an account</h2>
-          <SignUpForm />
-        </section>
-      </div>
+      <section className="rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 text-lg font-medium">Sign in</h2>
+        <SignInForm />
+        <p className="mt-4 text-sm text-stone-600">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/signup"
+            className="font-medium text-stone-900 underline underline-offset-2"
+          >
+            Sign up
+          </Link>
+        </p>
+      </section>
     </main>
   );
 }
