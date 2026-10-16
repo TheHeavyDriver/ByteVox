@@ -24,12 +24,8 @@ import { getCurrentUser } from "@/lib/session";
 
 function revalidateReport(reportId: string): void {
   revalidatePath(`/reports/${reportId}`);
-  revalidatePath("/");
+  revalidatePath("/dashboard");
 }
-
-// ---------------------------------------------------------------------------
-// Report lifecycle
-// ---------------------------------------------------------------------------
 
 const createReportSchema = z.object({
   datasetId: z.string().min(1),
@@ -44,13 +40,13 @@ export async function createReportAction(formData: FormData): Promise<void> {
     datasetId: formData.get("datasetId"),
     title: formData.get("title") ?? undefined,
   });
-  if (!parsed.success) redirect("/");
+  if (!parsed.success) redirect("/dashboard");
 
   const title = parsed.data.title || "Untitled report";
   const report = await createReport(user.id, parsed.data.datasetId, title);
-  if (!report) redirect("/");
+  if (!report) redirect("/dashboard");
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   redirect(`/reports/${report.id}`);
 }
 
@@ -95,13 +91,9 @@ export async function deleteReportAction(formData: FormData): Promise<void> {
   if (!reportId) return;
 
   const deleted = await deleteReport(reportId, user.id);
-  revalidatePath("/");
-  if (deleted) redirect("/");
+  revalidatePath("/dashboard");
+  if (deleted) redirect("/dashboard");
 }
-
-// ---------------------------------------------------------------------------
-// Filters
-// ---------------------------------------------------------------------------
 
 export type FilterFormState = { error: string | null };
 

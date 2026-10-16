@@ -34,7 +34,7 @@ export async function signUpAction(
     },
   });
   await startSession(user.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function signInAction(
@@ -52,12 +52,12 @@ export async function signInAction(
     ? await verifyPassword(password.data, user.passwordHash)
     : false;
   if (!user || !passwordOk) {
-    // Deliberately vague: do not reveal which part was wrong.
+    // same message either way; don't reveal which half was wrong
     return { error: "Email or password is incorrect." };
   }
 
   await startSession(user.id);
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function signOutAction(): Promise<void> {

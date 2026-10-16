@@ -4,7 +4,7 @@ import { listDatasets } from "@/lib/datasets";
 import { formatBytes, formatDateTimeUTC } from "@/lib/format";
 import { listReports } from "@/lib/reports";
 import { getCurrentUser } from "@/lib/session";
-import { UploadForm } from "./upload-form";
+import { UploadForm } from "../upload-form";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();

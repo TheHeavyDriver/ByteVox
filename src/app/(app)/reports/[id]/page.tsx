@@ -74,7 +74,10 @@ export default async function ReportPage({
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
-            <Link href="/" className="text-sm text-stone-500 hover:underline">
+            <Link
+              href="/dashboard"
+              className="text-sm text-stone-500 hover:underline"
+            >
               ← All reports
             </Link>
             <h1 className="mt-1 truncate text-xl font-semibold tracking-tight">

@@ -14,7 +14,7 @@ export default async function AppLayout({
       <header className="border-b border-stone-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
           <Link
-            href="/"
+            href="/dashboard"
             className="font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
           >
             ByteVox Report Builder

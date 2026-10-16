@@ -64,7 +64,7 @@ export async function uploadDatasetAction(
     result: outcome.result,
   });
 
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   redirect(`/datasets/${dataset.id}`);
 }
 
@@ -93,7 +93,7 @@ export async function renameDatasetAction(formData: FormData): Promise<void> {
     parsed.data.name,
   );
   if (updated) {
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath(`/datasets/${parsed.data.datasetId}`);
   }
 }
@@ -106,6 +106,6 @@ export async function deleteDatasetAction(formData: FormData): Promise<void> {
   if (!datasetId) return;
 
   await deleteDataset(datasetId, user.id);
-  revalidatePath("/");
-  redirect("/");
+  revalidatePath("/dashboard");
+  redirect("/dashboard");
 }
