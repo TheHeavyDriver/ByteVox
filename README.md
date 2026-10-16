@@ -124,8 +124,6 @@ The owner sees the same diff as a live preview on the share page. Because the ve
 - **Access control**: a second user cannot read, mutate, delete, or share another user's data; expired / revoked / unknown tokens;
 - **Revisions and sharing**: snapshot diffs, token hashing, revocation, expiry via an injectable clock.
 
-## Hours and AI usage
+## Hours
 
 **Time spent:** _(fill in from the hours log in `todo.md` before submitting — the honest number, even if it ran past the plan.)_
-
-**How AI was used:** I built this with an AI coding agent (OpenCode running DeepSeek V4.1 Flash) — scaffolding, most module code, tests, and these docs. The rule I held it to: no claim goes into the README or a demo before it survives a test or a live browser run. That rule caught a real AI mistake: the AI-written sample-data generator produced three rows it *claimed* had 15 fields but actually wrote 14 of them. The reconciliation test (`usable + rejected + blank lines + continuation lines = physical lines`) failed the moment it ran, exposed the generator bug, and the corrected fix made every number in the file ledger add up. One more, from the debugging log: an AI session misread a Playwright failure as a product bug, when the real cause was a stale element reference after a re-render — the fix was to re-snapshot before each interaction, not to touch the app. Both incidents are logged in `todo.md`.
