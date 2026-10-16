@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { BlockCard } from "@/components/block-view";
 import { computeBlocks, type BlockView } from "@/lib/compute/engine";
-import { formatDateTimeUTC } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   removeFilterAction,
   updateReportMetaAction,
@@ -89,7 +89,7 @@ export default async function ReportPage({
               </p>
             )}
             <p className="mt-1 text-xs text-stone-500">
-              v{report.version} · updated {formatDateTimeUTC(report.updatedAt)}
+              v{report.version} · updated {formatDateTime(report.updatedAt)}
               {report.dataset && (
                 <>
                   {" · dataset: "}

@@ -4,14 +4,15 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// Times are rendered in UTC with an explicit label so the profile page reads
-// the same on every machine (and in every screenshot in the README).
-export function formatDateTimeUTC(date: Date): string {
+// Times show in IST (UTC+5:30), pinned by zone name rather than the
+// server's local time, so a page reads the same on every machine (and in
+// every screenshot in the README).
+export function formatDateTime(date: Date): string {
   return `${new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: "UTC",
-  }).format(date)} UTC`;
+    timeZone: "Asia/Kolkata",
+  }).format(date)} IST`;
 }
 
 export function truncate(value: string, max: number): string {

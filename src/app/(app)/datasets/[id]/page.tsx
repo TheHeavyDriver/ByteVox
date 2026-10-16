@@ -7,7 +7,7 @@ import {
   parseProfileMeta,
   parseRowValues,
 } from "@/lib/datasets";
-import { formatBytes, formatDateTimeUTC, truncate } from "@/lib/format";
+import { formatBytes, formatDateTime, truncate } from "@/lib/format";
 import { createReportAction } from "@/lib/report-actions";
 import { getCurrentUser } from "@/lib/session";
 import { DeleteDatasetForm, RenameForm } from "./dataset-controls";
@@ -91,7 +91,7 @@ export default async function DatasetPage({
           </h1>
           <p className="mt-1 text-sm text-stone-600">
             {dataset.originalFilename} · uploaded{" "}
-            {formatDateTimeUTC(dataset.createdAt)}
+            {formatDateTime(dataset.createdAt)}
           </p>
         </div>
         <RenameForm datasetId={dataset.id} name={dataset.name} />

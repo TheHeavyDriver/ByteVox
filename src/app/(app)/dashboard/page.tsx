@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { listDatasets } from "@/lib/datasets";
-import { formatBytes, formatDateTimeUTC } from "@/lib/format";
+import { formatBytes, formatDateTime } from "@/lib/format";
 import { listReports } from "@/lib/reports";
 import { getCurrentUser } from "@/lib/session";
 import { UploadForm } from "../upload-form";
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
                       {formatBytes(dataset.byteSize)}
                     </td>
                     <td className="px-4 py-3 text-stone-600">
-                      {formatDateTimeUTC(dataset.createdAt)}
+                      {formatDateTime(dataset.createdAt)}
                     </td>
                   </tr>
                 ))}
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
                       v{report.version}
                     </td>
                     <td className="px-4 py-3 text-stone-600">
-                      {formatDateTimeUTC(report.updatedAt)}
+                      {formatDateTime(report.updatedAt)}
                     </td>
                   </tr>
                 ))}

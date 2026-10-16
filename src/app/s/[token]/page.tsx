@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { BlockCard } from "@/components/block-view";
 import { computeBlocks, type BlockView } from "@/lib/compute/engine";
-import { formatDateTimeUTC } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   getReportDiffSince,
   loadReportDatasetContext,
@@ -106,9 +106,9 @@ export default async function SharedReportPage({
         </div>
         <p className="text-xs text-stone-500">
           Built from {datasetCtx?.datasetName ?? "(deleted dataset)"} · report
-          v{report.version}, updated {formatDateTimeUTC(report.updatedAt)} ·
-          link created {formatDateTimeUTC(link.createdAt)}, expires{" "}
-          {formatDateTimeUTC(link.expiresAt)}
+          v{report.version}, updated {formatDateTime(report.updatedAt)} ·
+          link created {formatDateTime(link.createdAt)}, expires{" "}
+          {formatDateTime(link.expiresAt)}
         </p>
       </header>
 

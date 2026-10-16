@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { formatDateTimeUTC } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import {
   getReportDiffSince,
   getReportForUser,
@@ -126,10 +126,10 @@ export default async function SharePage({
                 {links.map((link) => (
                   <tr key={link.id}>
                     <td className="px-4 py-3 text-stone-600">
-                      {formatDateTimeUTC(link.createdAt)}
+                      {formatDateTime(link.createdAt)}
                     </td>
                     <td className="px-4 py-3 text-stone-600">
-                      {formatDateTimeUTC(link.expiresAt)}
+                      {formatDateTime(link.expiresAt)}
                     </td>
                     <td className="px-4 py-3">
                       <span
