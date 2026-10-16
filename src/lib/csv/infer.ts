@@ -10,7 +10,7 @@ import {
 export type ColumnType = "number" | "date" | "category" | "text";
 
 export type ColumnStats = {
-  /** Data rows considered, including rows where this cell is blank. */
+  // data rows considered, including rows where this cell is blank
   total: number;
   missing: number;
   distinct: number;
@@ -26,7 +26,7 @@ export type ColumnStats = {
     dialect: DateDialect;
     min: string | null;
     max: string | null;
-    /** Values that read as a date under both D/M/Y and M/D/Y. */
+    // values that read as a date under both D/M/Y and M/D/Y
     ambiguous: number;
     flags: string[];
   };
@@ -37,13 +37,13 @@ export type ColumnProfile = {
   name: string;
   position: number;
   guessedType: ColumnType;
-  /** One plain-English sentence explaining the guess. */
+  // one plain-English sentence explaining the guess
   reason: string;
   stats: ColumnStats;
 };
 
-// Tunable constants. They are deliberately visible here and repeated in the
-// column profile so the guess is explainable, not magic.
+// Tunable, and deliberately visible here and echoed in the column profile so
+// the guess is explainable rather than magic.
 export const NUMBER_THRESHOLD = 0.9;
 export const DATE_THRESHOLD = 0.9;
 export const CATEGORY_MAX_DISTINCT = 50;
@@ -54,8 +54,8 @@ const IDENTIFIER_MIN_ROWS = 20;
 function pct(part: number, whole: number): number {
   if (whole === 0) return 0;
   const value = (part / whole) * 100;
-  // Small shares keep one decimal (0.2% reads better than 0%), larger ones
-  // stay whole numbers.
+  // small shares keep one decimal (0.2% reads better than 0%); larger ones
+  // stay whole numbers
   return value >= 10 ? Math.round(value) : Math.round(value * 10) / 10;
 }
 
@@ -104,7 +104,6 @@ export function inferColumn(
     };
   }
 
-  // -- numbers --------------------------------------------------------------
   let integersOnly = true;
   for (const raw of nonMissing) {
     const parsed = tryParseNumber(raw);
@@ -126,7 +125,6 @@ export function inferColumn(
     }
   }
 
-  // -- dates ----------------------------------------------------------------
   let dayOnly = 0;
   let monthOnly = 0;
   let ambiguous = 0;
@@ -149,7 +147,7 @@ export function inferColumn(
   } else if (monthOnly > 0 && dayOnly === 0) {
     dialect = "month-first";
   } else if (monthOnly > 0 && dayOnly > 0) {
-    // Conflicting unambiguous values — pick the majority, and say so.
+    // conflicting unambiguous values: pick the majority, and say so
     dialect = dayOnly >= monthOnly ? "day-first" : "month-first";
     stats.date.flags.push(
       "Values use both D/M/Y and M/D/Y orders; the majority was chosen",
@@ -175,7 +173,6 @@ export function inferColumn(
   if (minDate) stats.date.min = toIsoDateString(minDate);
   if (maxDate) stats.date.max = toIsoDateString(maxDate);
 
-  // -- decision -------------------------------------------------------------
   const numberShare = stats.number.parsed / nonMissing.length;
   const dateShare = stats.date.parsed / nonMissing.length;
   const allUnique = distinct === nonMissing.length;
@@ -223,8 +220,8 @@ export function inferColumn(
   }
 
   const coverage = distinct / nonMissing.length;
-  // Small files are treated generously: with fewer than 10 rows a handful of
-  // distinct labels is still a usable category, even if every row differs.
+  // small files are treated generously: with fewer than 10 rows a handful of
+  // distinct labels is still a usable category, even if every row differs
   const categoryOk =
     distinct <= CATEGORY_MAX_DISTINCT &&
     (coverage < CATEGORY_MAX_COVERAGE || nonMissing.length < 10);

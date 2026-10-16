@@ -52,8 +52,8 @@ export async function uploadDatasetAction(
     return { error: outcome.error.message };
   }
 
-  // The original bytes are kept on disk (random file name, never served back)
-  // so that deleting a dataset frees real space.
+  // The original bytes are kept on disk (random file name, never served
+  // back) so deleting a dataset frees real space.
   const storagePath = await saveDatasetFile(bytes);
   const dataset = await persistDataset({
     userId: user.id,

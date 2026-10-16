@@ -1,10 +1,8 @@
 import { format, isValid, parse as parseWithFormat } from "date-fns";
 
-/**
- * Value parsing is shared by type inference AND by the compute engine, so
- * "this cell is a number" means the same thing at profiling time and at
- * aggregation time. Any change here changes both consistently.
- */
+// Value parsing is shared by type inference AND by the compute engine, so
+// "this cell is a number" means the same thing at profiling time and at
+// aggregation time. Any change here changes both, consistently.
 
 export type DateDialect = "day-first" | "month-first";
 
@@ -20,11 +18,9 @@ export type NumberParse = {
   strippedPercent: boolean;
 };
 
-/**
- * Lenient number parsing: tolerates surrounding whitespace, a single leading
- * currency symbol, thousands separators, and a trailing percent sign (kept
- * as-is, e.g. "12%" -> 12, and reported in the column profile).
- */
+// Lenient on purpose: tolerates surrounding whitespace, one leading currency
+// symbol, thousands separators, and a trailing percent sign (kept as-is,
+// e.g. "12%" -> 12, and reported in the column profile).
 export function tryParseNumber(raw: string): NumberParse | null {
   let s = raw.trim();
   if (s === "") return null;
@@ -104,9 +100,9 @@ function matchMonthNameFormat(input: string, fmt: string): Date | null {
 }
 
 export type DateCandidates = {
-  /** ISO or month-name formats: a single certain interpretation. */
+  // ISO or month-name formats: a single certain interpretation
   unambiguous: Date | null;
-  /** Only valid as D/M/Y (or M/D/Y) — the ambiguous bucket. */
+  // only valid as D/M/Y (or M/D/Y), i.e. the ambiguous bucket
   dayFirst: Date | null;
   monthFirst: Date | null;
 };
@@ -136,11 +132,9 @@ export function parseDateCandidates(raw: string): DateCandidates {
   return { unambiguous, dayFirst, monthFirst };
 }
 
-/**
- * Resolves a single value under a column's chosen dialect. The dialect only
- * decides how AMBIGUOUS values are read; values that are valid under just one
- * convention are accepted either way (they carry no ambiguity).
- */
+// Resolves a single value under a column's chosen dialect. The dialect only
+// decides how AMBIGUOUS values are read; values that are valid under just
+// one convention are accepted either way (they carry no ambiguity).
 export function parseDateWithDialect(
   raw: string,
   dialect: DateDialect,

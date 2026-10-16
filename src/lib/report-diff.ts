@@ -5,13 +5,11 @@ import {
   parseFilterList,
 } from "@/lib/report-spec";
 
-/**
- * Report snapshots and diffs — the machinery behind "what changed".
- *
- * Every mutation stores a snapshot (small, human-readable) in a revision
- * row. The public share view diffs the snapshot at the version the link was
- * created against the live report, so a viewer never has to guess what moved.
- */
+// Snapshots and diffs: the machinery behind "what changed".
+//
+// Every mutation stores a small snapshot in a revision row. The share view
+// diffs the snapshot at the version the link was created against the live
+// report, so a viewer never has to guess what moved.
 
 export type SnapshotBlock = { id: string; type: string; label: string };
 

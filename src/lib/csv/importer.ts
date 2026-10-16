@@ -3,16 +3,13 @@ import { decodeCsvBytes, type DecodeErrorCode } from "./decode";
 import { inferColumn, type ColumnProfile } from "./infer";
 import { isBlank } from "./value-parsers";
 
-/**
- * The importer is the single entry point for "bytes in, structured dataset
- * out". Everything that could go wrong with a real-world CSV is handled here
- * and reported, never silently dropped:
- *
- * - wrong encoding / binary files / xlsx containers -> typed errors
- * - rows that fail to parse -> RejectedRow with line number and reason
- * - blank lines and all-empty columns -> counted and reported
- * - messy headers -> normalized and reported
- */
+// Bytes in, structured dataset out. Everything that can go wrong with a
+// real-world CSV is handled here and reported, never silently dropped:
+//
+// - wrong encoding / binary files / xlsx containers: typed errors
+// - rows that fail to parse: a RejectedRow with a line number and reason
+// - blank lines and all-empty columns: counted and reported
+// - messy headers: normalized and reported
 
 export type ImportErrorCode =
   | "too_large"
@@ -30,7 +27,7 @@ export type RejectedRow = {
 };
 
 export type ImportedRow = {
-  /** 1-based index over usable data rows (header is not a data row). */
+  // 1-based index over usable data rows (the header is not a data row)
   rowNumber: number;
   values: Record<string, string>;
 };
@@ -41,9 +38,9 @@ export type ImportResult = {
   rows: ImportedRow[];
   rejected: RejectedRow[];
   blankLines: number;
-  /** Human-readable notes about header normalization. */
+  // human-readable notes about header normalization
   headerNotes: string[];
-  /** Names of all-empty columns that were ignored (and reported). */
+  // names of all-empty columns that were ignored (and reported)
   ignoredEmptyColumns: string[];
 };
 
@@ -214,8 +211,9 @@ export async function importCsvBytes(
 
   const rawLines = decoded.text.split(/\r\n|\n|\r/);
 
-  // Classify parser skips: blank lines are expected noise (counted, reported);
-  // anything else is a row we could not read (reported with a reason).
+  // Classify parser skips: blank lines are expected noise (counted and
+  // reported); anything else is a row we could not read (reported with a
+  // reason).
   let blankLines = 0;
   const rejected: RejectedRow[] = [];
   for (const skip of skips) {
@@ -236,7 +234,7 @@ export async function importCsvBytes(
 
   const { names, notes } = resolveHeaderNames(headerRow);
 
-  // All-empty columns are dropped from the profile — but named in the report.
+  // All-empty columns are dropped from the profile, but named in the notes.
   const keptIndexes: number[] = [];
   const ignoredEmptyColumns: string[] = [];
   names.forEach((name, index) => {

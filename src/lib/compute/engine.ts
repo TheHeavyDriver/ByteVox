@@ -18,17 +18,14 @@ import {
   type TableSpec,
 } from "@/lib/report-spec";
 
-/**
- * The compute engine. Pure functions over already-loaded rows, so every
- * number a report shows can be recomputed from the same inputs and every
- * result carries the ledger that explains it:
- *
- *   usableRows = included + excludedByFilter
- *   included   = valuesUsed + excludedByMissing + excludedByUnparseable
- *
- * Values are parsed with the exact helpers used at import time, so "9.5 is a
- * number here" stays true from the profile page to the shared report.
- */
+// Pure functions over already-loaded rows: same inputs, same numbers, and
+// every result carries the ledger that explains it.
+//
+//   usableRows = included + excludedByFilter
+//   included   = valuesUsed + excludedByMissing + excludedByUnparseable
+//
+// Values go through the same parsers the importer used, so a value that read
+// as a number on the profile page still reads as one in a report.
 
 export type ComputeRow = { rowNumber: number; values: Record<string, string> };
 
@@ -48,11 +45,11 @@ export type DatasetLedger = {
 export type ValueLedger = {
   usableRows: number;
   excludedByFilter: number;
-  /** Rows that passed the filter but had a blank value for the column. */
+  // passed the filter but blank in this column
   excludedByMissing: number;
-  /** Rows with a non-blank value that still failed to parse (e.g. "N/A"). */
+  // non-blank but unparseable, e.g. "N/A"
   excludedByUnparseable: number;
-  /** Rows that contributed exactly one value to the result. */
+  // rows that contributed exactly one value
   valuesUsed: number;
   included: number;
 };
@@ -78,7 +75,7 @@ export type MetricResult = {
 export type ChartPoint = {
   label: string;
   value: number;
-  /** Rows in this group that passed the filter. */
+  // rows in this group that passed the filter
   rows: number;
 };
 
@@ -104,10 +101,6 @@ export type ComputeContext = {
 
 const SAMPLE_LIMIT = 5;
 const GROUP_LIMIT_FOR_LINE = 60;
-
-// ---------------------------------------------------------------------------
-// Filtering
-// ---------------------------------------------------------------------------
 
 function matchesCondition(
   raw: string,
@@ -177,10 +170,6 @@ function partitionByFilter(ctx: ComputeContext): {
   return { includedRows, excludedByFilter };
 }
 
-// ---------------------------------------------------------------------------
-// Formatting
-// ---------------------------------------------------------------------------
-
 const numberFormat = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
@@ -193,10 +182,6 @@ function formatMetricValue(value: number | string | null): string {
   if (value === null) return "—";
   return typeof value === "number" ? formatNumber(value) : value;
 }
-
-// ---------------------------------------------------------------------------
-// Metric blocks
-// ---------------------------------------------------------------------------
 
 export function computeMetric(spec: MetricSpec, ctx: ComputeContext): MetricResult {
   const { includedRows, excludedByFilter } = partitionByFilter(ctx);
@@ -350,10 +335,6 @@ export function computeMetric(spec: MetricSpec, ctx: ComputeContext): MetricResu
   };
 }
 
-// ---------------------------------------------------------------------------
-// Chart blocks
-// ---------------------------------------------------------------------------
-
 function groupKeyFor(
   row: ComputeRow,
   column: ComputeColumn | undefined,
@@ -449,7 +430,7 @@ export function computeChart(spec: ChartSpec, ctx: ComputeContext): ChartResult 
   let points: ChartPoint[];
 
   if (spec.chartKind === "line" && groupColumn?.guessedType === "date") {
-    // A time series keeps every day bucket, in date order.
+    // time series: every day bucket, in date order
     points = viable
       .sort((a, b) => a.sortValue.localeCompare(b.sortValue))
       .map((group) => ({
@@ -458,7 +439,7 @@ export function computeChart(spec: ChartSpec, ctx: ComputeContext): ChartResult 
         rows: group.rows,
       }));
   } else {
-    // Bar charts (and category line charts) show the top N groups by value.
+    // everything else: top N groups by value
     const sorted = [...viable].sort(
       (a, b) => (pointValue(b) ?? 0) - (pointValue(a) ?? 0),
     );
@@ -484,7 +465,7 @@ export function computeChart(spec: ChartSpec, ctx: ComputeContext): ChartResult 
   }
 
   if (spec.chartKind === "line" && groupColumn?.guessedType !== "date" && points.length > GROUP_LIMIT_FOR_LINE) {
-    // Defensive cap: category line charts stay readable.
+    // keep category lines readable
     const dropped = points.slice(GROUP_LIMIT_FOR_LINE);
     points = points.slice(0, GROUP_LIMIT_FOR_LINE);
     notes.push(
@@ -507,10 +488,6 @@ export function computeChart(spec: ChartSpec, ctx: ComputeContext): ChartResult 
     },
   };
 }
-
-// ---------------------------------------------------------------------------
-// Table blocks
-// ---------------------------------------------------------------------------
 
 export function computeTable(spec: TableSpec, ctx: ComputeContext): TableResult {
   const { includedRows, excludedByFilter } = partitionByFilter(ctx);
@@ -549,10 +526,6 @@ export function computeTable(spec: TableSpec, ctx: ComputeContext): TableResult 
   };
 }
 
-// ---------------------------------------------------------------------------
-// Block dispatch
-// ---------------------------------------------------------------------------
-
 export type BlockInput = {
   id: string;
   position: number;
@@ -572,12 +545,9 @@ export type BlockView = {
   table?: TableResult;
 };
 
-/**
- * Turns stored blocks into computed views. A block whose stored spec no
- * longer parses (or whose type disagrees with it) comes back with
- * definition: null so pages can render an honest "unreadable block" state
- * instead of guessing.
- */
+// A block whose stored spec no longer parses (or whose type disagrees with
+// it) comes back with definition: null, so pages can render an "unreadable
+// block" state instead of guessing.
 export function computeBlocks(
   blocks: BlockInput[],
   ctx: ComputeContext,

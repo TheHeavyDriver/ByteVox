@@ -3,11 +3,9 @@ import { ChartView } from "@/components/chart-view";
 import type { BlockView, MetricTrace } from "@/lib/compute/engine";
 import { describeBlock } from "@/lib/report-spec";
 
-/**
- * Rendering for a computed block: the value first, the explanation one
- * click away. The ledger panel mirrors the engine's invariants line for
- * line, so the UI cannot drift from the accounting without it being obvious.
- */
+// Value first, explanation one click away. The ledger panel mirrors the
+// engine's invariants line for line, so the UI cannot drift from the
+// accounting without it being obvious.
 
 function LedgerRow({
   label,

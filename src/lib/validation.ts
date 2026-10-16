@@ -1,9 +1,7 @@
 import { z } from "zod";
 
-/**
- * Shared server-side validation schemas. Imported by server actions and by
- * tests, so they contain no Next.js imports.
- */
+// Shared server-side validation schemas, imported by the actions and by
+// tests, so they contain no Next.js imports.
 
 export const emailField = z
   .string()

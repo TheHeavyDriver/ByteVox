@@ -1,8 +1,6 @@
-/**
- * Turns raw uploaded bytes into text, or explains — in plain English — why
- * that is not possible. No guessing: anything we cannot decode confidently
- * is rejected with a message rather than shown as mojibake.
- */
+// Raw bytes in, text out, or a plain-English reason why that is not
+// possible. Nothing is guessed: anything we cannot decode confidently is
+// rejected with a message rather than shown as mojibake.
 
 export type DecodeErrorCode = "empty" | "xlsx" | "binary" | "bad_encoding";
 
@@ -52,7 +50,7 @@ export function decodeCsvBytes(bytes: Uint8Array): DecodedFile {
     };
   }
 
-  // ZIP-based container (xlsx is a zip). PK\x03\x04 / PK\x05\x06 / PK\x07\x08.
+  // zip-based container (xlsx is a zip). PK\x03\x04 / PK\x05\x06 / PK\x07\x08.
   if (
     bytes.length >= 4 &&
     bytes[0] === 0x50 &&
@@ -89,7 +87,7 @@ export function decodeCsvBytes(bytes: Uint8Array): DecodedFile {
 
   let text: string;
   try {
-    // fatal: true means invalid byte sequences throw instead of becoming U+FFFD.
+    // fatal: true means invalid byte sequences throw instead of becoming U+FFFD
     text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   } catch {
     return {

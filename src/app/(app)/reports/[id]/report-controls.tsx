@@ -30,10 +30,6 @@ const labelClass = "block text-xs font-medium text-stone-600";
 const errorClass =
   "rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800";
 
-// ---------------------------------------------------------------------------
-// Filters
-// ---------------------------------------------------------------------------
-
 export function AddFilterForm({
   reportId,
   columns,
@@ -155,10 +151,6 @@ export function AddFilterForm({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Block editor (add + edit share one implementation)
-// ---------------------------------------------------------------------------
-
 type MetricKind = "count" | "distinctCount" | "sum" | "mean" | "median" | "min" | "max";
 
 function metricKindOf(definition: BlockDefinition | null): MetricKind {
@@ -201,13 +193,13 @@ export function BlockEditor({
 
   const numericColumns = columns.filter((c) => c.guessedType === "number");
 
-  // Metric block state.
+  // metric block state
   const [metricKind, setMetricKind] = useState<MetricKind>(metricKindOf(definition));
   const [metricColumn, setMetricColumn] = useState<string>(
     metricColumnOf(definition) || numericColumns[0]?.name || columns[0]?.name || "",
   );
 
-  // Chart block state.
+  // chart block state
   const [chartKind, setChartKind] = useState<"bar" | "line">(
     definition?.type === "chart" ? definition.chart.chartKind : "bar",
   );
@@ -474,10 +466,6 @@ export function BlockEditor({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Block frame: toolbar (move / edit / delete) + editor toggle
-// ---------------------------------------------------------------------------
-
 export function BlockFrame({
   reportId,
   blockId,
@@ -574,10 +562,6 @@ export function BlockFrame({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Add block panel
-// ---------------------------------------------------------------------------
-
 const BLOCK_TYPES = [
   { type: "metric", label: "Metric" },
   { type: "chart", label: "Chart" },
@@ -625,10 +609,6 @@ export function AddBlockPanel({
     </div>
   );
 }
-
-// ---------------------------------------------------------------------------
-// Report deletion + share link management
-// ---------------------------------------------------------------------------
 
 export function DeleteReportForm({ reportId }: { reportId: string }) {
   return (

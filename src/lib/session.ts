@@ -8,10 +8,8 @@ import {
 } from "@/lib/auth";
 import type { User } from "@/generated/prisma/client";
 
-/**
- * Cookie glue around the auth module. Kept separate so auth.ts stays pure
- * (no Next.js imports) and testable.
- */
+// Cookie glue around auth.ts, kept separate so auth.ts has no Next.js
+// imports and stays unit-testable.
 
 export async function startSession(userId: string): Promise<void> {
   const { token, expiresAt } = await createSession(userId);

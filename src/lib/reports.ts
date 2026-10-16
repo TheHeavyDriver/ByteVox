@@ -17,19 +17,12 @@ import {
 } from "@/lib/report-diff";
 import { blockDefinitionSchema } from "@/lib/report-spec";
 
-/**
- * Reports: persistence, ownership-scoped access, mutation-with-revision, and
- * share links.
- *
- * Every mutation goes through mutateReport, which bumps the report version
- * and stores a snapshot revision in the same transaction. That single rule
- * is what makes "what changed since this link was shared" exact rather than
- * approximate.
- */
-
-// ---------------------------------------------------------------------------
-// Reports
-// ---------------------------------------------------------------------------
+// Reports: persistence, ownership-scoped access, mutations with revisions,
+// and share links.
+//
+// Every mutation goes through mutateReport, which bumps the version and
+// stores a snapshot revision in the same transaction. That one rule is what
+// makes "what changed since this link was shared" exact, not approximate.
 
 const DEFAULT_BLOCK = blockDefinitionSchema.parse({
   type: "metric",
@@ -62,8 +55,8 @@ export async function createReport(
           specJson: JSON.stringify(DEFAULT_BLOCK),
         },
       });
-      // v1 gets a snapshot too, so a share link created before any edit can
-      // still diff exactly ("what changed since this link was shared").
+      // v1 gets a snapshot too, so a link shared before the first edit
+      // still diffs exactly.
       const blocks = await tx.block.findMany({
         where: { reportId: report.id },
         orderBy: { position: "asc" },
@@ -133,11 +126,9 @@ export async function deleteReport(
   return deleted.count === 1;
 }
 
-/**
- * Applies a change to a report, bumps its version, and stores a snapshot
- * revision — all in one transaction, after checking ownership. This is the
- * only way report content ever changes.
- */
+// Applies a change, bumps the version, and stores a snapshot revision, all
+// in one transaction and only after the ownership check. This is the only
+// way report content ever changes.
 export async function mutateReport(
   reportId: string,
   userId: string,
@@ -181,10 +172,6 @@ export async function mutateReport(
     { timeout: 20_000 },
   );
 }
-
-// ---------------------------------------------------------------------------
-// Compute input (loaded fresh from the database rows)
-// ---------------------------------------------------------------------------
 
 export type UiColumn = {
   name: string;
@@ -254,10 +241,6 @@ export async function loadReportDatasetContext(
   };
 }
 
-// ---------------------------------------------------------------------------
-// "What changed" — diff of the live report against a stored version
-// ---------------------------------------------------------------------------
-
 export type ReportDiff = {
   changed: boolean;
   currentVersion: number;
@@ -301,10 +284,6 @@ export async function getReportDiffSince(
   };
 }
 
-// ---------------------------------------------------------------------------
-// Share links
-// ---------------------------------------------------------------------------
-
 export const SHARE_MAX_DAYS = 90;
 export const SHARE_DEFAULT_DAYS = 7;
 
@@ -317,10 +296,8 @@ export function shareStatus(
   return "active";
 }
 
-/**
- * Creates a share link. The plaintext token is returned exactly once — only
- * its SHA-256 hash is stored (same rule as session tokens).
- */
+// Creates a share link. The plaintext token is returned exactly once; only
+// its SHA-256 hash is stored (same rule as session tokens).
 export async function createShareLink(
   reportId: string,
   userId: string,
@@ -385,11 +362,8 @@ export type ShareResolution =
       report: SharedReport;
     };
 
-/**
- * Resolves a share token to its report (latest version) or a reason it
- * cannot be shown. The only key is the token itself — deliberately no
- * access to the raw uploaded file.
- */
+// Token in, report out (latest version) or a reason it cannot be shown. The
+// token is the only key, and there is no path from it to the raw file.
 export async function resolveShareLink(
   token: string,
   database: PrismaClient = db,

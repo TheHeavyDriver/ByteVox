@@ -40,7 +40,7 @@ export default async function SharePage({
   }));
 
   // The "what changed" preview uses the newest active link that is behind
-  // the current version — exactly what a viewer of that link sees.
+  // the current version: exactly what a viewer of that link sees.
   const previewLink = links.find(
     (link) => link.status === "active" && link.versionsSince > 0,
   );

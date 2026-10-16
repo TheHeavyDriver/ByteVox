@@ -13,11 +13,9 @@ const scrypt = promisify(scryptCallback);
 export const SESSION_COOKIE_NAME = "bv_session";
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-/**
- * Passwords are stored as "scrypt:<salt hex>:<hash hex>". scrypt is Node's
- * built-in KDF, so there is no native dependency to install and every step
- * is explainable.
- */
+// Passwords are stored as "scrypt:<salt hex>:<hash hex>". scrypt ships with
+// Node, so there is no native dependency to install and every step is
+// explainable.
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
   const derived = (await scrypt(password, salt, 64)) as Buffer;
@@ -36,10 +34,8 @@ export async function verifyPassword(
   return derived.length === expected.length && timingSafeEqual(derived, expected);
 }
 
-/**
- * Session and share tokens are 32 random bytes. Only the SHA-256 hash is
- * stored, so a database leak does not leak usable tokens.
- */
+// Session and share tokens are 32 random bytes; only the SHA-256 hash is
+// stored, so a database leak does not leak usable tokens.
 export function sha256Hex(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
@@ -48,7 +44,7 @@ function hashSessionToken(token: string): string {
   return sha256Hex(token);
 }
 
-/** A fresh 32-byte token, URL-safe. */
+// 32 random bytes, URL-safe
 export function generateToken(): string {
   return randomBytes(32).toString("base64url");
 }

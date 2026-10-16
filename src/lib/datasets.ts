@@ -6,14 +6,10 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import type { ColumnStats } from "@/lib/csv/infer";
 import type { ImportResult } from "@/lib/csv/importer";
 
-// ---------------------------------------------------------------------------
-// File storage
-//
-// Uploaded bytes are stored under UPLOAD_DIR with a random file name. The
-// user-supplied name is never used as a path. Note that no route serves these
-// files back: they exist so deletes can free real space and so a future
-// re-import feature has the original. (See README, "no raw-file endpoint".)
-// ---------------------------------------------------------------------------
+// Uploaded bytes live under UPLOAD_DIR with a random file name; the user's
+// name is never used as a path. No route serves these files back - they are
+// here so deleting a dataset frees real space, and a future re-import would
+// still have the original. (See README: "no raw-file endpoint".)
 
 export function resolveUploadDir(): string {
   const configured = process.env.UPLOAD_DIR ?? "./var/uploads";
@@ -33,14 +29,10 @@ export async function saveDatasetFile(bytes: Uint8Array): Promise<string> {
 export async function removeDatasetFile(storagePath: string): Promise<void> {
   const dir = resolveUploadDir();
   const fullPath = path.resolve(dir, storagePath);
-  // Never follow a stored path that escapes the upload directory.
+  // don't try to unlink anything that escaped the upload dir
   if (!fullPath.startsWith(dir + path.sep)) return;
   await unlink(fullPath).catch(() => undefined);
 }
-
-// ---------------------------------------------------------------------------
-// Persistence
-// ---------------------------------------------------------------------------
 
 export type PersistDatasetInput = {
   userId: string;
@@ -122,13 +114,9 @@ export async function persistDataset(
   );
 }
 
-// ---------------------------------------------------------------------------
-// Access layer
-//
-// Every function takes the requesting user id and scopes its query by it.
-// There is no "look up by id alone" variant, so a route that forgets an
-// ownership check cannot accidentally leak another user's data.
-// ---------------------------------------------------------------------------
+// Every function here takes the requesting user id and scopes its query by
+// it. There is no "look up by id alone" variant, so a route that forgets an
+// ownership check cannot leak another user's data.
 
 export async function listDatasets(userId: string, database: PrismaClient = db) {
   return database.dataset.findMany({
@@ -205,10 +193,6 @@ export async function deleteDataset(
   return true;
 }
 
-// ---------------------------------------------------------------------------
-// Stored JSON helpers
-// ---------------------------------------------------------------------------
-
 export type DatasetProfileMeta = {
   blankLines: number;
   headerNotes: string[];
@@ -251,8 +235,8 @@ export function parseColumnStats(statsJson: string): ParsedColumnStats | null {
   }
 }
 
-/** Parses a stored row's JSON back into a column-name → value map. A corrupt
- * row renders as blanks rather than crashing whatever page is showing it. */
+// Parses a stored row's JSON back into a column-name -> value map. A corrupt
+// row renders as blanks rather than crashing whatever page shows it.
 export function parseRowValues(dataJson: string): Record<string, string> {
   try {
     const raw: unknown = JSON.parse(dataJson);

@@ -212,13 +212,9 @@ export async function removeFilterAction(formData: FormData): Promise<void> {
   if (changed) revalidateReport(reportId);
 }
 
-// ---------------------------------------------------------------------------
-// Blocks
-// ---------------------------------------------------------------------------
-
 export type BlockFormState = { error: string | null };
 
-/** One report can hold this many blocks; the add action reports the cap. */
+// hard cap; the add action reports it when hit
 const MAX_BLOCKS = 30;
 
 function buildDefinitionFromForm(
@@ -420,10 +416,6 @@ export async function moveBlockAction(formData: FormData): Promise<void> {
   });
   if (changed) revalidateReport(reportId);
 }
-
-// ---------------------------------------------------------------------------
-// Share links
-// ---------------------------------------------------------------------------
 
 export type ShareFormState = { url: string | null; error: string | null };
 

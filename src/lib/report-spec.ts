@@ -1,17 +1,11 @@
 import { z } from "zod";
 
-/**
- * The report specification: filters, blocks, and their validated shapes.
- *
- * Everything the user can type into the builder passes through these schemas
- * before it is stored or executed, so the compute engine only ever sees
- * well-formed specs. The types exported here are the single source of truth
- * for both the server and the UI.
- */
-
-// ---------------------------------------------------------------------------
-// Filters (report level, ANDed together, applied to every block)
-// ---------------------------------------------------------------------------
+// Report specs: filters, blocks, and their validated shapes.
+//
+// Everything the user can type into the builder passes through these schemas
+// before it is stored or executed, so the compute engine only ever sees
+// well-formed specs. The types exported here are the source of truth for
+// both the server and the UI.
 
 export const filterConditionSchema = z.discriminatedUnion("op", [
   z.object({
@@ -35,7 +29,7 @@ export const filterConditionSchema = z.discriminatedUnion("op", [
   z.object({
     column: z.string().min(1),
     op: z.literal("dateBetween"),
-    // Inclusive ISO dates (yyyy-MM-dd), either side optional.
+    // inclusive ISO dates (yyyy-MM-dd); either side can be null
     min: z.string().nullable(),
     max: z.string().nullable(),
   }),
@@ -74,10 +68,6 @@ export function describeFilter(condition: FilterCondition): string {
     }
   }
 }
-
-// ---------------------------------------------------------------------------
-// Blocks
-// ---------------------------------------------------------------------------
 
 export const metricSpecSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("count") }),
@@ -190,7 +180,7 @@ export function describeBlock(definition: BlockDefinition): string {
   }
 }
 
-/** Safe parse of a stored block spec; returns null for corrupt data. */
+// Corrupt stored JSON parses to null instead of throwing.
 export function parseBlockDefinition(specJson: string): BlockDefinition | null {
   try {
     const parsed = blockDefinitionSchema.safeParse(JSON.parse(specJson));
@@ -200,7 +190,7 @@ export function parseBlockDefinition(specJson: string): BlockDefinition | null {
   }
 }
 
-/** Safe parse of stored report filters; returns [] for corrupt data. */
+// Same idea for stored filters; corrupt data parses to [].
 export function parseFilterList(filterJson: string): FilterCondition[] {
   try {
     const parsed = filterListSchema.safeParse(JSON.parse(filterJson));
